@@ -87,3 +87,8 @@ git commit -m "description of your change"
 ```bash
 git push origin feature/your-feature-name
 ```
+
+## Installing required technologies
+1. Download Node.js https://nodejs.org/en
+2. Open terminal run "npm install" to install all dependencies
+3. To start app run "npm run dev" and open localhost link
