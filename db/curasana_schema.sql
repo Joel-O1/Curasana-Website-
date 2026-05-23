@@ -59,11 +59,11 @@ CREATE TABLE category_field_templates (
 
 CREATE TABLE patient_categories (
   id SERIAL PRIMARY KEY,
-  patient_id integer NOT NULL,
+  user_id integer NOT NULL,
   category_id integer NOT NULL,
   is_custom boolean default false,
   created_at timestamp default NOW(),
-  CONSTRAINT fk_patient_categories_patient_id FOREIGN KEY (patient_id) REFERENCES patient_profiles(id) ON DELETE CASCADE,
+  CONSTRAINT fk_patient_categories_patient_id FOREIGN KEY (user_id) REFERENCES patient_profiles(id) ON DELETE CASCADE,
   CONSTRAINT fk_patient_categories_category_id FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE
 );
 
@@ -120,20 +120,20 @@ CREATE TABLE health_event (
 CREATE TABLE health_event_fields (
   id SERIAL PRIMARY KEY,
   event_id integer NOT NULL,
-  template_field_id integer NOT NULL, -- Fixed: Link straight to metadata ID instead of parsing strings
+  template_field_id integer, -- Fixed: Link straight to metadata ID instead of parsing strings
+  field_name varchar,
   field_value varchar NOT NULL,
   is_custom boolean DEFAULT FALSE,
   created_at timestamp default NOW(),
   CONSTRAINT fk_health_event_fields_event_id FOREIGN KEY (event_id) REFERENCES health_event(id) ON DELETE CASCADE,
   CONSTRAINT fk_health_event_fields_template FOREIGN KEY (template_field_id) REFERENCES category_field_templates(id) ON DELETE RESTRICT,
-  CONSTRAINT uq_event_template_field UNIQUE (event_id, template_field_id) -- Fixed: Protects against double entries
 );
 
 CREATE TABLE medication_log (
   id SERIAL PRIMARY KEY,
   medication_id integer NOT NULL,
   patient_id integer NOT NULL,      -- Fixed: Swapped user_id for patient_id
-  health_event_id integer UNIQUE,   -- Fixed: Links straight back to the event engine
+  health_event_id integer,   
   scheduled_time time,
   actual_time time,
   status status not null,
@@ -142,7 +142,7 @@ CREATE TABLE medication_log (
   created_at timestamp default NOW(),
   CONSTRAINT fk_medication_log_medication_id FOREIGN KEY (medication_id) REFERENCES medication(id) on delete cascade,
   CONSTRAINT fk_medication_log_patient_id FOREIGN KEY (patient_id) REFERENCES patient_profiles(id) on delete cascade,
-  CONSTRAINT fk_medication_log_event_id FOREIGN KEY (health_event_id) REFERENCES health_event(id) on delete cascade
+  CONSTRAINT fk_medication_log_health_event_id FOREIGN KEY (health_event_id) REFERENCES health_event(id) on delete set null
 );
 
 CREATE TABLE aggregated_trend (
