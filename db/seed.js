@@ -1,13 +1,16 @@
+require('dotenv').config();
+
+
 const { Pool } = require('pg');
 const { faker } = require('@faker-js/faker');
+const bcrypt = require('bcrypt');
 
 // Configure Local PostgreSQL Connection
 const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  database: 'curasanadb',
-  user: 'zachadmin',
-  password: 'Zaxgame2002p',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 async function runSeed() {
@@ -73,6 +76,7 @@ async function runSeed() {
       const lastName  = faker.person.lastName();
       const username  = faker.internet.username({ firstName, lastName });
       const email     = faker.internet.email({ firstName, lastName });
+      const passwordHash  = await bcrypt.hash('password123', 10); // default password for all users
 
       // Distribute roles: 5 doctors, 1 admin, 24 patients
       let role = 'patient';
@@ -85,8 +89,8 @@ async function runSeed() {
       }
 
       const userRes = await client.query(
-        `INSERT INTO users (username, email, role) VALUES ($1, $2, $3) RETURNING id`,
-        [username, email, role]
+        `INSERT INTO users (username, email, role, password_hash) VALUES ($1, $2, $3, $4) RETURNING id`,
+        [username, email, role, passwordHash]
       );
       const userId = userRes.rows[0].id;
 
