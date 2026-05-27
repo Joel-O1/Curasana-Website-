@@ -93,6 +93,7 @@ async function runSeed() {
         [username, email, role, passwordHash]
       );
       const userId = userRes.rows[0].id;
+       
 
       // ── DOCTOR ──────────────────────────────────────────────────────────────
       if (role === 'doctor') {
