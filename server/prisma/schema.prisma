@@ -91,20 +91,19 @@ model health_event {
   appointment           appointment?          @relation(fields: [related_appt_id], references: [id], onUpdate: NoAction, map: "fk_health_event_related_appt_id")
   medication            medication?           @relation(fields: [related_medication_id], references: [id], onUpdate: NoAction, map: "fk_health_event_related_medication_id")
   health_event_fields   health_event_fields[]
-  medication_log        medication_log?
+  medication_log        medication_log[]
 }
 
 model health_event_fields {
-  id                       Int                      @id @default(autoincrement())
+  id                       Int                       @id @default(autoincrement())
   event_id                 Int
-  template_field_id        Int
-  field_value              String                   @db.VarChar
-  is_custom                Boolean?                 @default(false)
-  created_at               DateTime?                @default(now()) @db.Timestamp(6)
-  health_event             health_event             @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_health_event_fields_event_id")
-  category_field_templates category_field_templates @relation(fields: [template_field_id], references: [id], onUpdate: NoAction, map: "fk_health_event_fields_template")
-
-  @@unique([event_id, template_field_id], map: "uq_event_template_field")
+  template_field_id        Int?
+  field_name               String?                   @db.VarChar
+  field_value              String                    @db.VarChar
+  is_custom                Boolean?                  @default(false)
+  created_at               DateTime?                 @default(now()) @db.Timestamp(6)
+  health_event             health_event              @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_health_event_fields_event_id")
+  category_field_templates category_field_templates? @relation(fields: [template_field_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_health_event_fields_template")
 }
 
 model medication {
@@ -128,14 +127,14 @@ model medication_log {
   id               Int              @id @default(autoincrement())
   medication_id    Int
   patient_id       Int
-  health_event_id  Int?             @unique
+  health_event_id  Int?
   scheduled_time   DateTime?        @db.Time(6)
   actual_time      DateTime?        @db.Time(6)
   status           status
   reason_missed    String?          @db.VarChar
   side_effects     String?          @db.VarChar
   created_at       DateTime?        @default(now()) @db.Timestamp(6)
-  health_event     health_event?    @relation(fields: [health_event_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_medication_log_event_id")
+  health_event     health_event?    @relation(fields: [health_event_id], references: [id], onUpdate: NoAction, map: "fk_medication_log_event_id")
   medication       medication       @relation(fields: [medication_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_medication_log_medication_id")
   patient_profiles patient_profiles @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_medication_log_patient_id")
 }

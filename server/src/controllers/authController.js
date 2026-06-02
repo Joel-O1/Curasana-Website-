@@ -42,7 +42,14 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, username, password } = req.body;
-        const user = await prisma.users.findFirst({ where: {email} });
+        const user = await prisma.users.findFirst({
+            where:
+                {email: {
+                    equals: req.body.email.trim(),
+                    mode: 'insensitive',
+                }
+            }
+        });
 
         if (!user){
             return res.status(401).json({ message: 'User not found'});
@@ -51,7 +58,7 @@ const login = async (req, res) => {
         const passwordMatches = await bcrypt.compare(password, user.password_hash);
 
         if (!passwordMatches){
-            return res.status(401).json({message: 'Invalid username or password'});
+            return res.status(401).json({message: 'Invalid email or password'});
         }
 
         const token = jwt.sign(
