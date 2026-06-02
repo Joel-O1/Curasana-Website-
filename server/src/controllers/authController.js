@@ -5,11 +5,19 @@ const jwt = require('jsonwebtoken');
 const register = async (req, res) => {
     try {
         const { email, username, password } = req.body;
-        const existingUser = await prisma.users.findFirst({
+        const existingEmail = await prisma.users.findFirst({
             where: { email: email}
         });
 
-        if (existingUser){
+        const existingUsername = await prisma.users.findFirst({
+            where: { username: username}
+        });
+
+        if (existingUsername){
+            return res.status(400).json({ message: 'Username already exists'});
+        }
+
+        if (existingEmail){
             return res.status(400).json({ message: 'Email already exists'});
         }
 
@@ -29,7 +37,6 @@ const register = async (req, res) => {
         console.error(error);
         res.status(500).json({error: 'Server error'});
     }
-    
 };
 
 const login = async (req, res) => {
@@ -48,11 +55,11 @@ const login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { userId: user.id, role: user.role},
+            { userId: user.id, role: user.role}, //this data is encoded into the token
             process.env.JWT_SECRET,
             { expiresIn: '7d'}
         );
-        res.status(200).json({ token });
+        res.status(200).json({"user signed in": true, token });
     } catch (error){
         console.error(error);
         res.status(500).json({error: 'Server error'});
