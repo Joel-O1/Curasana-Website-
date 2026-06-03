@@ -16,6 +16,9 @@ app.use('/api/auth', authRoutes);
 const healthRoutes = require('./routes/healthRoutes');
 app.use('/api', healthRoutes);//all routes in healthRoutes will be prefixed with /api and protected by the auth middleware
 
+const apptRoutes = require('./routes/apptRoutes');
+app.use('/api', apptRoutes);
+
 
 app.get('/', (req, res) => {
     res.json({ message: 'Curasana API is running' });
