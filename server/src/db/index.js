@@ -1,27 +1,19 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
 
 const { PrismaClient } = require('@prisma/client');
+const { PrismaPg } = require('@prisma/adapter-pg');
 const { Pool } = require('pg');
 
-const prisma = new PrismaClient;
-
-// Configure Local PostgreSQL Connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: process.env.DATABASE_URL?.includes('localhost')
+    ? false
+    : { rejectUnauthorized: false },
 });
 
-module.exports = pool;
-module.exports = prisma;
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
-//can use it in other files like this:
-// const pool = require('./db');
-// const result = await pool.query('SELECT * FROM users', (err, res) => {
-//   if (err) {
-//     console.error('Error executing query', err.stack);
-//   } else {
-//     console.log(res.rows);
-//   }
-// });
+module.exports = prisma;
+module.exports.pool = pool;

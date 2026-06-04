@@ -12,6 +12,7 @@ CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username varchar not null unique,
   email varchar not null unique,
+  password_hash varchar not null,
   role varchar not null, -- e.g., 'patient', 'doctor', 'admin'
   created_at timestamp default NOW()
 );

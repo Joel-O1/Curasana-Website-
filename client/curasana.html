@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curasana — Personal Health Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#0d9e75;--teal-d:#0b8a65;--teal-light:#e1f5ee;--teal-mid:#1d9e75;
+  --coral:#d85a30;--coral-light:#faece7;
+  --amber:#ba7517;--amber-light:#faeeda;
+  --purple:#534ab7;--purple-light:#eeedfe;
+  --blue:#185fa5;--blue-light:#e6f1fb;
+  --pink:#d4537e;--pink-light:#fbeaf0;
+  --bg:#f4f6f3;--card:#ffffff;--border:#e4e8e2;
+  --text:#181d18;--text2:#536058;--text3:#8a9890;
+  --sidebar:#0c1a15;--sidebar2:#142218;
+  --font:'DM Sans',sans-serif;--serif:'Instrument Serif',serif;
+  --r:12px;--r-sm:8px;
+}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+button{font-family:var(--font);cursor:pointer}
+input,select,textarea{font-family:var(--font)}
+
+/* ── LAYOUT ── */
+.app{display:grid;grid-template-columns:230px 1fr;height:100vh;overflow:hidden}
+.sidebar{background:var(--sidebar);display:flex;flex-direction:column;overflow-y:auto}
+.main-area{display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 30px;height:62px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.content-area{flex:1;overflow-y:auto;padding:28px 30px}
+
+/* ── SIDEBAR ── */
+.logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:var(--teal);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:20px;height:20px;fill:white}
+.logo-name{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.3px}
+.logo-tag{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1.2px;text-transform:uppercase;margin-top:1px}
+.nav{padding:16px 10px;flex:1}
+.nav-group-label{font-size:9.5px;color:rgba(255,255,255,.22);letter-spacing:1.3px;text-transform:uppercase;padding:0 10px;margin:14px 0 6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;color:rgba(255,255,255,.45);cursor:pointer;transition:all .15s;margin-bottom:1px;font-size:13.5px;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.75)}
+.nav-item.active{background:rgba(13,158,117,.18);color:#52ddb0}
+.nav-item i{font-size:16px;width:20px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--coral);color:#fff;font-size:10px;padding:1px 7px;border-radius:20px;font-weight:600}
+.sidebar-footer{padding:14px 16px 18px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px;margin-top:auto}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1d9e75,#52ddb0);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
+.user-name{font-size:13px;font-weight:500;color:rgba(255,255,255,.8)}
+.user-role{font-size:11px;color:rgba(255,255,255,.3)}
+
+/* ── TOPBAR ── */
+.page-title{font-size:16px;font-weight:500;color:var(--text)}
+.page-sub{font-size:12px;color:var(--text3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;border:none;transition:all .15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:var(--teal-d)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-danger{background:#fff0ee;color:var(--coral);border:1px solid #f5c4b3}
+.btn-danger:hover{background:#fde4de}
+.icon-btn{width:36px;height:36px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all .15s}
+.icon-btn:hover{background:var(--bg)}
+.notif-wrap{position:relative}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--coral);border-radius:50%;border:1.5px solid #fff}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px}
+.card-sm{padding:16px}
+.section-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:15px;font-weight:500;color:var(--text)}
+.section-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.link-btn{font-size:12px;color:var(--teal);cursor:pointer;display:flex;align-items:center;gap:3px;background:none;border:none;padding:0}
+.link-btn:hover{color:var(--teal-d)}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:17px}
+.stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.stat-val{font-size:26px;font-weight:300;letter-spacing:-1px;line-height:1;color:var(--text)}
+.stat-unit{font-size:13px;color:var(--text3);font-weight:400}
+.stat-change{font-size:12px;margin-top:5px;display:flex;align-items:center;gap:4px}
+.up{color:var(--teal)}.down{color:var(--coral)}.neutral{color:var(--text3)}
+
+/* hero score */
+.hero-card{background:linear-gradient(140deg,#0c1a15 0%,#0d3d2e 100%);border:none;position:relative;overflow:hidden}
+.hero-card::after{content:'';position:absolute;top:-50px;right:-50px;width:160px;height:160px;background:rgba(13,158,117,.12);border-radius:50%}
+.hero-card .stat-label{color:rgba(255,255,255,.4)}
+.hero-card .stat-val{color:#fff;font-size:50px;font-weight:300}
+.hero-card .stat-unit{color:rgba(255,255,255,.35)}
+.score-bar{margin-top:12px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.score-fill{height:100%;background:linear-gradient(90deg,#1d9e75,#52ddb0);border-radius:2px}
+.score-caption{font-size:11px;color:rgba(255,255,255,.3);margin-top:7px}
+
+/* ── PILLS / BADGES ── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-teal{background:var(--teal-light);color:#0b6e53}
+.pill-amber{background:var(--amber-light);color:#7a4d0b}
+.pill-coral{background:var(--coral-light);color:#8a3218}
+.pill-blue{background:var(--blue-light);color:#0e4278}
+.pill-purple{background:var(--purple-light);color:#372e8a}
+.pill-gray{background:#f0f2ef;color:var(--text2)}
+
+/* ── FORM ELEMENTS ── */
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.form-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;font-weight:500}
+.form-input,.form-select,.form-textarea{padding:10px 13px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:13.5px;color:var(--text);background:var(--bg);outline:none;transition:border .15s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--teal);background:#fff}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.6}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+
+/* severity selector */
+.sev-group{display:flex;gap:6px}
+.sev-opt{padding:6px 14px;border-radius:6px;font-size:12px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;transition:all .15s}
+.sev-opt:hover{border-color:var(--text3)}
+.sev-opt.sel-mild{background:var(--blue-light);border-color:#a8c8ef;color:#0e4278}
+.sev-opt.sel-moderate{background:var(--amber-light);border-color:#f0b85a;color:#7a4d0b}
+.sev-opt.sel-severe{background:var(--coral-light);border-color:#f0a888;color:#8a3218}
+
+/* pain scale */
+.pain-scale{display:flex;gap:5px;margin-top:4px}
+.pain-num{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;border:1px solid var(--border);background:var(--card);cursor:pointer;transition:all .15s;color:var(--text2)}
+.pain-num:hover{border-color:var(--teal)}
+.pain-num.sel{background:var(--teal);border-color:var(--teal);color:#fff}
+
+/* ── MEDICATION ITEMS ── */
+.med-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.med-item:last-child{border-bottom:none}
+.med-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.med-name{font-size:13.5px;font-weight:500;color:var(--text)}
+.med-dose{font-size:11.5px;color:var(--text3)}
+
+/* ── TIMELINE ── */
+.tl{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:14px;padding-bottom:18px;position:relative}
+.tl-item:last-child{padding-bottom:0}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:17px;top:34px;bottom:0;width:1px;background:var(--border)}
+.tl-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.tl-title{font-size:13.5px;font-weight:500;color:var(--text)}
+.tl-detail{font-size:12px;color:var(--text3);margin-top:2px;line-height:1.5}
+.tl-time{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ── ALLERGY TAGS ── */
+.allergy-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.al-tag{padding:10px 13px;border-radius:10px;display:flex;align-items:center;gap:9px;border:1px solid}
+.al-tag i{font-size:17px}
+.al-name{font-size:13px;font-weight:500}
+.al-sev{font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+.al-high{background:#fff1ef;border-color:#f5c4b3}.al-high i,.al-high .al-name{color:#8a3218}.al-high .al-sev{color:#b34a25}
+.al-med{background:var(--amber-light);border-color:#f5c678}.al-med i,.al-med .al-name{color:#7a4d0b}.al-med .al-sev{color:#9a6210}
+.al-low{background:var(--blue-light);border-color:#b5d4f4}.al-low i,.al-low .al-name{color:#0e4278}.al-low .al-sev{color:#1a5a9a}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:#0c1a15;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;transition:all .3s;z-index:9999;display:flex;align-items:center;gap:8px;opacity:0;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MODAL ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:var(--r);padding:28px;width:520px;max-width:95vw;max-height:85vh;overflow-y:auto;transform:translateY(20px);transition:transform .2s}
+.modal-backdrop.open .modal{transform:translateY(0)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-size:17px;font-weight:600;color:var(--text)}
+.modal-close{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:14px}
+.modal-close:hover{background:var(--bg)}
+
+/* ── REPORT STYLES ── */
+.report-header{background:linear-gradient(135deg,#0c1a15,#0d3d2e);border-radius:var(--r);padding:28px;margin-bottom:20px;color:#fff}
+.report-title{font-size:24px;font-weight:300;font-family:var(--serif);margin-bottom:4px}
+.report-sub{font-size:13px;color:rgba(255,255,255,.45)}
+.report-meta{display:flex;gap:24px;margin-top:18px}
+.report-meta-item{font-size:12px}
+.report-meta-label{color:rgba(255,255,255,.35);margin-bottom:2px}
+.report-meta-val{color:rgba(255,255,255,.85);font-weight:500}
+.report-section{margin-bottom:22px}
+.report-section-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px}
+
+/* ── ANALYTICS ── */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-tabs{display:flex;gap:4px;margin-bottom:16px}
+.ctab{padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text2);border:1px solid transparent;transition:all .15s}
+.ctab.active{background:var(--teal-light);color:var(--teal);font-weight:500}
+.ctab:hover:not(.active){background:var(--bg)}
+
+/* ── COMMUNITY ── */
+.community-card{border-radius:var(--r);padding:20px;margin-bottom:14px;border:1px solid}
+.community-teal{background:var(--teal-light);border-color:#9fe1cb}
+.community-amber{background:var(--amber-light);border-color:#f5d080}
+.community-coral{background:var(--coral-light);border-color:#f0b898}
+.insight-num{font-size:32px;font-weight:300;letter-spacing:-1px;color:var(--text)}
+.insight-label{font-size:13px;color:var(--text2);margin-top:2px}
+.trend-bar{height:6px;background:rgba(0,0,0,.06);border-radius:3px;margin-top:10px;overflow:hidden}
+.trend-fill{height:100%;border-radius:3px}
+
+/* ── TABLE ── */
+table.data-table{width:100%;border-collapse:collapse}
+table.data-table th{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);font-weight:500}
+table.data-table td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+table.data-table tr:last-child td{border-bottom:none}
+table.data-table tr:hover td{background:var(--bg)}
+
+/* ── PAGES ── */
+.page{display:none}
+.page.active{display:block}
+
+/* ── MISC ── */
+.two-col{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty-state i{font-size:40px;display:block;margin-bottom:12px;color:var(--border)}
+.empty-state p{font-size:13px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:5px;font-size:11px;background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+.progress-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.progress-label{font-size:12px;color:var(--text2);min-width:90px}
+.progress-bar{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.progress-fill{height:100%;border-radius:3px}
+.progress-val{font-size:12px;color:var(--text3);min-width:28px;text-align:right}
+.check-list{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .15s}
+.check-item:hover{background:var(--bg)}
+.check-item input[type=checkbox]{width:15px;height:15px;accent-color:var(--teal);cursor:pointer;flex-shrink:0}
+.check-label{font-size:13px;color:var(--text)}
+.check-sub{font-size:11px;color:var(--text3)}
+.ml-insight{background:linear-gradient(135deg,var(--teal-light),#d0f0e6);border:1px solid #9fe1cb;border-radius:var(--r);padding:18px;margin-bottom:14px}
+.ml-badge{display:inline-flex;align-items:center;gap:5px;background:var(--teal);color:#fff;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 12px;margin-bottom:16px}
+.search-box i{color:var(--text3);font-size:16px}
+.search-box input{border:none;background:transparent;outline:none;font-size:13px;color:var(--text);width:100%}
+.auth-overlay{position:fixed;inset:0;background:linear-gradient(140deg,#0c1a15,#0d3d2e);display:flex;align-items:center;justify-content:center;z-index:9999}
+.auth-overlay.hidden{display:none}
+.auth-card{background:var(--card);border-radius:var(--r);padding:32px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.auth-card h2{font-family:var(--serif);font-size:28px;margin-bottom:6px}
+.auth-card p{color:var(--text3);font-size:13px;margin-bottom:20px}
+.auth-tabs{display:flex;gap:8px;margin-bottom:20px}
+.auth-tab{flex:1;padding:8px;border:1px solid var(--border);background:var(--bg);border-radius:var(--r-sm);font-size:13px}
+.auth-tab.active{background:var(--teal-light);border-color:var(--teal);color:var(--teal-d)}
+.auth-error{color:var(--coral);font-size:12px;margin-top:8px;min-height:18px}
+.app.hidden{display:none}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-card">
+    <h2>Curasana</h2>
+    <p>Sign in to access your health data</p>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" id="tabLogin" onclick="setAuthTab('login')">Login</button>
+      <button type="button" class="auth-tab" id="tabRegister" onclick="setAuthTab('register')">Register</button>
+    </div>
+    <div id="authLogin">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="loginEmail" type="email" placeholder="you@email.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="loginPassword" type="password" placeholder="••••••••"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="doLogin()">Sign in</button>
+    </div>
+    <div id="authRegister" style="display:none">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="regUsername" placeholder="johndoe"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="regEmail" type="email"></div>
+        <div class="form-group"><label class="form-label">First name</label><input class="form-input" id="regFirst"></div>
+        <div class="form-group"><label class="form-label">Last name</label><input class="form-input" id="regLast"></div>
+        <div class="form-group form-full"><label class="form-label">Password</label><input class="form-input" id="regPassword" type="password" placeholder="Min 8 chars, upper, lower, number, symbol"></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="doRegister()">Create account</button>
+    </div>
+    <div class="auth-error" id="authError"></div>
+    <button type="button" class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:14px" onclick="startLocalMode()">Continue without account (demo)</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><i class="ti ti-check" style="color:#52ddb0"></i><span id="toastMsg">Saved</span></div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">Modal</div>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="app hidden" id="mainApp">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-row">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg>
+        </div>
+        <div>
+          <div class="logo-name">Curasana</div>
+          <div class="logo-tag">Health Platform</div>
+        </div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-group-label">Overview</div>
+      <div class="nav-item active" onclick="nav('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+      <div class="nav-item" onclick="nav('timeline',this)"><i class="ti ti-timeline"></i> Health Timeline</div>
+      <div class="nav-item" onclick="nav('analytics',this)"><i class="ti ti-chart-area-line"></i> Analytics</div>
+      <div class="nav-group-label">Health Log</div>
+      <div class="nav-item" onclick="nav('symptoms',this)"><i class="ti ti-stethoscope"></i> Symptoms <span class="nav-badge" id="symBadge">3</span></div>
+      <div class="nav-item" onclick="nav('medications',this)"><i class="ti ti-pill"></i> Medications</div>
+      <div class="nav-item" onclick="nav('allergies',this)"><i class="ti ti-alert-triangle"></i> Allergies</div>
+      <div class="nav-group-label">Reports</div>
+      <div class="nav-item" onclick="nav('reports',this)"><i class="ti ti-file-medical"></i> Doctor Reports</div>
+      <div class="nav-group-label">Community</div>
+      <div class="nav-item" onclick="nav('community',this)"><i class="ti ti-world"></i> Trends Near Me</div>
+      <div class="nav-item" onclick="nav('insights',this)"><i class="ti ti-brain"></i> ML Insights</div>
+      <div class="nav-group-label">Account</div>
+      <div class="nav-item" onclick="nav('settings',this)"><i class="ti ti-settings"></i> Settings</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar">ZW</div>
+      <div>
+        <div class="user-name">Zach Wiwad</div>
+        <div class="user-role">Patient · Edmonton, AB</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main-area">
+    <div class="topbar">
+      <div id="topbarInfo">
+        <div class="page-title" id="topbarTitle">Good morning, Zach 👋</div>
+        <div class="page-sub" id="topbarSub">Wednesday, May 6, 2026</div>
+      </div>
+      <div class="topbar-right" id="topbarActions">
+        <button class="btn btn-ghost" onclick="openSymptomModal()"><i class="ti ti-plus"></i> Log Symptom</button>
+        <button class="btn btn-primary" onclick="nav('reports',document.querySelector('[onclick*=reports]'))"><i class="ti ti-file-export"></i> Generate Report</button>
+        <div class="notif-wrap icon-btn" onclick="showToast('No new notifications')"><i class="ti ti-bell"></i><span class="notif-dot"></span></div>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- ══ PAGE: DASHBOARD ══ -->
+      <div class="page active" id="page-dashboard">
+        <div class="stat-grid">
+          <div class="stat-card hero-card">
+            <div class="stat-label">Health Score</div>
+            <div><span class="stat-val">78</span><span class="stat-unit">/100</span></div>
+            <div class="score-bar"><div class="score-fill" style="width:78%"></div></div>
+            <div class="score-caption">Good standing · 3 active alerts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--teal-light)"><i class="ti ti-activity" style="color:var(--teal)"></i></div>
+            <div class="stat-label">Symptoms</div>
+            <div><span class="stat-val" id="symCount">12</span><span class="stat-unit"> this month</span></div>
+            <div class="stat-change down"><i class="ti ti-trending-up"></i> +3 vs last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--purple-light)"><i class="ti ti-pill" style="color:var(--purple)"></i></div>
+            <div class="stat-label">Medications</div>
+            <div><span class="stat-val" id="medCount">4</span><span class="stat-unit"> active</span></div>
+            <div class="stat-change up"><i class="ti ti-check"></i> 2 taken today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--amber-light)"><i class="ti ti-calendar" style="color:var(--amber)"></i></div>
+            <div class="stat-label">Next Appointment</div>
+            <div style="font-size:18px;font-weight:500;letter-spacing:-.5px;margin-top:4px">May 14</div>
+            <div class="stat-change neutral">Dr. Patel · GP Checkup</div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-bottom:16px">
+          <div class="card">
+            <div class="section-row">
+              <div><div class="section-title">Symptom Trends</div><div class="section-sub">Past 30 days</div></div>
+              <div class="chart-tabs">
+                <span class="ctab active">30d</span><span class="ctab">90d</span><span class="ctab">1y</span>
+              </div>
+            </div>
+            <canvas id="dashLineChart" height="160"></canvas>
+          </div>
+          <div class="card">
+            <div class="section-row">
+              <div><div class="section-title">Breakdown</div><div class="section-sub">By type this month</div></div>
+            </div>
+            <canvas id="dashDonut" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="three-col">
+          <div class="card">
+            <div class="section-row">
+              <div class="section-title">Medications</div>
+              <button class="link-btn" onclick="nav('medications',document.querySelector('[onclick*=medications]'))"><i class="ti ti-arrow-right"></i> View all</button>
+            </div>
+            <div id="dashMedList">
+              <div class="med-item"><div class="med-ico" style="background:var(--teal-light)"><i class="ti ti-pill" style="color:var(--teal)"></i></div><div><div class="med-name">Metformin</div><div class="med-dose">500mg · twice daily</div></div><span class="pill pill-teal" style="margin-left:auto">✓ Taken</span></div>
+              <div class="med-item"><div class="med-ico" style="background:var(--purple-light)"><i class="ti ti-pill" style="color:var(--purple)"></i></div><div><div class="med-name">Lisinopril</div><div class="med-dose">10mg · once daily</div></div><span class="pill pill-amber" style="margin-left:auto">8 PM</span></div>
+              <div class="med-item"><div class="med-ico" style="background:var(--blue-light)"><i class="ti ti-pill" style="color:var(--blue)"></i></div><div><div class="med-name">Atorvastatin</div><div class="med-dose">20mg · bedtime</div></div><span class="pill pill-amber" style="margin-left:auto">10 PM</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-row">
+              <div class="section-title">Recent Timeline</div>
+              <button class="link-btn" onclick="nav('timeline',document.querySelector('[onclick*=timeline]'))"><i class="ti ti-arrow-right"></i> All events</button>
+            </div>
+            <div class="tl">
+              <div class="tl-item"><div class="tl-dot" style="background:var(--coral-light)"><i class="ti ti-activity" style="color:var(--coral);font-size:13px"></i></div><div><div class="tl-title">Headache logged</div><div class="tl-detail">Severity 7/10 · left temple</div><div class="tl-time">Today, 9:14 AM</div></div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--teal-light)"><i class="ti ti-pill" style="color:var(--teal);font-size:13px"></i></div><div><div class="tl-title">Medications taken</div><div class="tl-detail">Metformin 500mg</div><div class="tl-time">Today, 8:00 AM</div></div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--blue-light)"><i class="ti ti-stethoscope" style="color:var(--blue);font-size:13px"></i></div><div><div class="tl-title">GP Appointment</div><div class="tl-detail">BP: 118/76 · All clear</div><div class="tl-time">May 1, 2:30 PM</div></div></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card card-sm">
+              <div class="section-row" style="margin-bottom:12px"><div class="section-title">Allergies</div><button class="link-btn" onclick="nav('allergies',document.querySelector('[onclick*=allergies]'))"><i class="ti ti-arrow-right"></i></button></div>
+              <div class="allergy-grid">
+                <div class="al-tag al-high"><i class="ti ti-alert-circle"></i><div><div class="al-name">Penicillin</div><div class="al-sev">Severe</div></div></div>
+                <div class="al-tag al-med"><i class="ti ti-leaf"></i><div><div class="al-name">Pollen</div><div class="al-sev">Moderate</div></div></div>
+              </div>
+            </div>
+            <div class="ml-insight">
+              <div class="ml-badge"><i class="ti ti-brain" style="font-size:10px"></i> ML Insight</div>
+              <div style="font-size:13px;color:#0b5c42;line-height:1.5">18 users near Edmonton are reporting similar headaches this week — linked to high pollen count.</div>
+              <button class="link-btn" style="margin-top:8px;color:var(--teal-d);font-size:12px" onclick="nav('insights',document.querySelector('[onclick*=insights]'))">View all insights <i class="ti ti-arrow-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: SYMPTOMS ══ -->
+      <div class="page" id="page-symptoms">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div></div>
+          <button class="btn btn-primary" onclick="openSymptomModal()"><i class="ti ti-plus"></i> Log Symptom</button>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="search-box"><i class="ti ti-search"></i><input placeholder="Search symptoms..." oninput="filterSymptoms(this.value)"></div>
+          <table class="data-table" id="symTable">
+            <thead><tr><th>Date & Time</th><th>Symptom</th><th>Location</th><th>Severity</th><th>Pain</th><th>Notes</th><th></th></tr></thead>
+            <tbody id="symTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: MEDICATIONS ══ -->
+      <div class="page" id="page-medications">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div></div>
+          <button class="btn btn-primary" onclick="openMedModal()"><i class="ti ti-plus"></i> Add Medication</button>
+        </div>
+        <div class="three-col" style="margin-bottom:16px">
+          <div class="stat-card"><div class="stat-icon" style="background:var(--teal-light)"><i class="ti ti-pill" style="color:var(--teal)"></i></div><div class="stat-label">Active Meds</div><div class="stat-val" id="activeMedStat">4</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--blue-light)"><i class="ti ti-check" style="color:var(--blue)"></i></div><div class="stat-label">Taken Today</div><div class="stat-val">2</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--amber-light)"><i class="ti ti-clock" style="color:var(--amber)"></i></div><div class="stat-label">Pending</div><div class="stat-val">2</div></div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="section-row"><div class="section-title">Today's Schedule</div></div>
+          <div id="medChecklist" class="check-list"></div>
+        </div>
+        <div class="card">
+          <div class="section-row"><div class="section-title">All Medications</div></div>
+          <table class="data-table">
+            <thead><tr><th>Medication</th><th>Dosage</th><th>Frequency</th><th>Prescribed By</th><th>Start Date</th><th>Status</th><th></th></tr></thead>
+            <tbody id="medTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: ALLERGIES ══ -->
+      <div class="page" id="page-allergies">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div></div>
+          <button class="btn btn-primary" onclick="openAllergyModal()"><i class="ti ti-plus"></i> Add Allergy</button>
+        </div>
+        <div class="card" style="margin-bottom:16px;border-left:3px solid var(--coral);border-radius:0 var(--r) var(--r) 0">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <i class="ti ti-alert-circle" style="color:var(--coral);font-size:22px;margin-top:2px"></i>
+            <div><div style="font-size:14px;font-weight:500;color:var(--text)">Emergency Alert Card</div><div style="font-size:12px;color:var(--text2);margin-top:3px;line-height:1.6">This information is visible to emergency responders when you share your Medical ID. Keep it up to date.</div></div>
+          </div>
+        </div>
+        <div class="three-col" style="margin-bottom:16px">
+          <div class="stat-card"><div class="stat-icon" style="background:var(--coral-light)"><i class="ti ti-alert-circle" style="color:var(--coral)"></i></div><div class="stat-label">Severe</div><div class="stat-val" id="severeCount">1</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--amber-light)"><i class="ti ti-alert-triangle" style="color:var(--amber)"></i></div><div class="stat-label">Moderate</div><div class="stat-val" id="moderateCount">1</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--blue-light)"><i class="ti ti-info-circle" style="color:var(--blue)"></i></div><div class="stat-label">Mild</div><div class="stat-val" id="mildCount">2</div></div>
+        </div>
+        <div class="card">
+          <div class="section-row"><div class="section-title">Known Allergies & Sensitivities</div></div>
+          <table class="data-table">
+            <thead><tr><th>Allergen</th><th>Category</th><th>Severity</th><th>Reaction</th><th>Diagnosed</th><th></th></tr></thead>
+            <tbody id="allergyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: TIMELINE ══ -->
+      <div class="page" id="page-timeline">
+        <div class="two-col" style="margin-bottom:16px">
+          <div>
+            <div class="search-box"><i class="ti ti-search"></i><input placeholder="Search events..."><div style="display:flex;gap:6px;margin-left:8px">
+              <select class="form-select" style="width:auto;padding:4px 8px;font-size:12px" onchange="filterTimeline(this.value)">
+                <option value="">All types</option><option value="symptom">Symptoms</option><option value="medication">Medications</option><option value="appointment">Appointments</option><option value="allergy">Allergies</option>
+              </select>
+            </div></div>
+            <div id="timelineList"></div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="section-title" style="margin-bottom:14px">Activity Summary</div>
+              <canvas id="tlBarChart" height="150"></canvas>
+            </div>
+            <div class="card">
+              <div class="section-title" style="margin-bottom:12px">Quick Stats</div>
+              <div class="progress-row"><span class="progress-label">Symptoms</span><div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--coral)"></div></div><span class="progress-val">12</span></div>
+              <div class="progress-row"><span class="progress-label">Medications</span><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--teal)"></div></div><span class="progress-val">60</span></div>
+              <div class="progress-row"><span class="progress-label">Appointments</span><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--blue)"></div></div><span class="progress-val">2</span></div>
+              <div class="progress-row"><span class="progress-label">Allergy events</span><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--amber)"></div></div><span class="progress-val">2</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: ANALYTICS ══ -->
+      <div class="page" id="page-analytics">
+        <div class="stat-grid" style="margin-bottom:20px">
+          <div class="stat-card"><div class="stat-label">Avg Pain Score</div><div class="stat-val">4.2<span class="stat-unit">/10</span></div><div class="stat-change down">↑ worse vs last month</div></div>
+          <div class="stat-card"><div class="stat-label">Most Frequent</div><div style="font-size:18px;font-weight:500;margin-top:4px">Headache</div><div class="stat-change neutral">4 times this month</div></div>
+          <div class="stat-card"><div class="stat-label">Streak</div><div class="stat-val">12<span class="stat-unit"> days</span></div><div class="stat-change up">🔥 Logging streak</div></div>
+          <div class="stat-card"><div class="stat-label">Med Adherence</div><div class="stat-val">87<span class="stat-unit">%</span></div><div class="stat-change up">↑ vs 79% last month</div></div>
+        </div>
+        <div class="analytics-grid" style="margin-bottom:16px">
+          <div class="card">
+            <div class="section-row"><div><div class="section-title">Symptom Frequency Over Time</div><div class="section-sub">Daily count</div></div>
+            <div class="chart-tabs"><span class="ctab active" onclick="switchChart(this,'line30')">30d</span><span class="ctab" onclick="switchChart(this,'line90')">90d</span></div></div>
+            <canvas id="analyticsLine" height="180"></canvas>
+          </div>
+          <div class="card">
+            <div class="section-row"><div class="section-title">Pain Distribution</div><div class="section-sub">Scale 1–10</div></div>
+            <canvas id="painBar" height="180"></canvas>
+          </div>
+        </div>
+        <div class="analytics-grid">
+          <div class="card">
+            <div class="section-row"><div class="section-title">Medication Adherence</div><div class="section-sub">Past 4 weeks</div></div>
+            <canvas id="adherenceChart" height="160"></canvas>
+          </div>
+          <div class="card">
+            <div class="section-row"><div class="section-title">Symptom Types</div><div class="section-sub">Distribution</div></div>
+            <canvas id="symPie" height="160"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: REPORTS ══ -->
+      <div class="page" id="page-reports">
+        <div class="two-col">
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="section-row"><div class="section-title">Generate New Report</div></div>
+              <div class="form-group"><label class="form-label">Report Type</label>
+                <select class="form-select" id="reportType">
+                  <option>30-Day Health Summary</option>
+                  <option>Medication History</option>
+                  <option>Symptom Log Export</option>
+                  <option>Allergy & Sensitivity Report</option>
+                  <option>Full Medical History</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">From Date</label><input type="date" class="form-input" value="2026-04-06"></div>
+                <div class="form-group"><label class="form-label">To Date</label><input type="date" class="form-input" value="2026-05-06"></div>
+              </div>
+              <div class="form-group"><label class="form-label">Share With (Doctor)</label>
+                <select class="form-select">
+                  <option>Dr. Patel (GP)</option><option>Dr. Yamamoto (Cardiologist)</option><option>Dr. Okonkwo (Neurologist)</option><option>Keep private</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Include Sections</label>
+                <div class="check-list">
+                  <label class="check-item"><input type="checkbox" checked> <div><div class="check-label">Symptoms & Pain Log</div><div class="check-sub">All logged symptom events</div></div></label>
+                  <label class="check-item"><input type="checkbox" checked> <div><div class="check-label">Medications</div><div class="check-sub">Active and past prescriptions</div></div></label>
+                  <label class="check-item"><input type="checkbox" checked> <div><div class="check-label">Allergies</div><div class="check-sub">Known allergens and reactions</div></div></label>
+                  <label class="check-item"><input type="checkbox"> <div><div class="check-label">Analytics Charts</div><div class="check-sub">Visual trend graphs</div></div></label>
+                </div>
+              </div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px" onclick="generateReport()"><i class="ti ti-file-export"></i> Generate & Preview</button>
+            </div>
+            <div class="card">
+              <div class="section-row"><div class="section-title">Past Reports</div></div>
+              <table class="data-table">
+                <thead><tr><th>Date</th><th>Type</th><th>Shared With</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td>May 1, 2026</td><td>30-Day Summary</td><td>Dr. Patel</td><td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="showToast('Opening report...')"><i class="ti ti-download"></i> Download</button></td></tr>
+                  <tr><td>Apr 3, 2026</td><td>Medication History</td><td>Dr. Yamamoto</td><td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="showToast('Opening report...')"><i class="ti ti-download"></i> Download</button></td></tr>
+                  <tr><td>Mar 15, 2026</td><td>Full Medical History</td><td>Private</td><td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="showToast('Opening report...')"><i class="ti ti-download"></i> Download</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div id="reportPreview">
+            <div class="card" style="text-align:center;padding:48px 24px;color:var(--text3)">
+              <i class="ti ti-file-description" style="font-size:48px;display:block;margin-bottom:14px;color:var(--border)"></i>
+              <div style="font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px">Report Preview</div>
+              <div style="font-size:13px">Fill in the form and click Generate to preview your doctor report here.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: COMMUNITY ══ -->
+      <div class="page" id="page-community">
+        <div class="three-col" style="margin-bottom:20px">
+          <div class="community-card community-teal">
+            <div class="insight-num">18</div>
+            <div class="insight-label">Users near Edmonton reporting headaches this week</div>
+            <div class="trend-bar"><div class="trend-fill" style="width:72%;background:var(--teal)"></div></div>
+          </div>
+          <div class="community-card community-amber">
+            <div class="insight-num">34</div>
+            <div class="insight-label">Reporting fatigue and allergy symptoms in AB</div>
+            <div class="trend-bar"><div class="trend-fill" style="width:85%;background:var(--amber)"></div></div>
+          </div>
+          <div class="community-card community-coral">
+            <div class="insight-num">11</div>
+            <div class="insight-label">Reports of nausea in your postal code area</div>
+            <div class="trend-bar"><div class="trend-fill" style="width:44%;background:var(--coral)"></div></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="section-row"><div class="section-title">Regional Symptom Map</div><div class="section-sub">Edmonton & surrounding area</div></div>
+            <canvas id="communityChart" height="220"></canvas>
+          </div>
+          <div class="card">
+            <div class="section-row"><div class="section-title">Trending in Your Area</div></div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--teal-light);border-radius:var(--r-sm)"><span style="font-size:22px">🌿</span><div><div style="font-size:13px;font-weight:500;color:var(--text)">Seasonal Allergies</div><div style="font-size:12px;color:var(--text2)">High pollen alert — Edmonton, May 2026</div></div><span class="pill pill-teal" style="margin-left:auto">High</span></div>
+              <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--amber-light);border-radius:var(--r-sm)"><span style="font-size:22px">🤧</span><div><div style="font-size:13px;font-weight:500;color:var(--text)">Flu-like Symptoms</div><div style="font-size:12px;color:var(--text2)">Mild spike, NE Edmonton neighborhoods</div></div><span class="pill pill-amber" style="margin-left:auto">Medium</span></div>
+              <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:var(--r-sm);border:1px solid var(--border)"><span style="font-size:22px">🌡️</span><div><div style="font-size:13px;font-weight:500;color:var(--text)">Headaches</div><div style="font-size:12px;color:var(--text2)">18 reports in last 7 days</div></div><span class="pill pill-gray" style="margin-left:auto">Stable</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: ML INSIGHTS ══ -->
+      <div class="page" id="page-insights">
+        <div class="ml-insight" style="margin-bottom:16px">
+          <div class="ml-badge"><i class="ti ti-brain" style="font-size:10px"></i> Pattern Detected</div>
+          <div style="font-size:16px;font-weight:500;color:var(--text);margin-bottom:4px">Your headaches correlate with high pollen days</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6">Over the past 3 months, 78% of your headache events occurred within 24 hours of regional pollen count exceeding 150 ppm. This is statistically significant (p &lt; 0.02).</div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-primary" style="font-size:12px;padding:7px 14px" onclick="showToast('Insight saved to your profile')"><i class="ti ti-bookmark"></i> Save Insight</button>
+            <button class="btn btn-ghost" style="font-size:12px;padding:7px 14px" onclick="showToast('Shared with Dr. Patel')"><i class="ti ti-share"></i> Share with Doctor</button>
+          </div>
+        </div>
+        <div class="three-col" style="margin-bottom:16px">
+          <div class="card"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Correlation Strength</div><div style="font-size:32px;font-weight:300;letter-spacing:-1px">78%</div><div style="font-size:12px;color:var(--text3);margin-top:4px">Headache ↔ Pollen</div></div>
+          <div class="card"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Cluster Size</div><div style="font-size:32px;font-weight:300;letter-spacing:-1px">18</div><div style="font-size:12px;color:var(--text3);margin-top:4px">Similar users nearby</div></div>
+          <div class="card"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Confidence</div><div style="font-size:32px;font-weight:300;letter-spacing:-1px">High</div><div style="font-size:12px;color:var(--text3);margin-top:4px">p &lt; 0.02</div></div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="section-row"><div class="section-title">Pollen vs. Headache Events</div><div class="section-sub">Last 90 days</div></div>
+            <canvas id="correlationChart" height="180"></canvas>
+          </div>
+          <div class="card">
+            <div class="section-row"><div class="section-title">All Detected Patterns</div></div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="padding:12px;border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer" onclick="showToast('Expanding pattern...')">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="font-size:13px;font-weight:500;color:var(--text)">Headache ↔ Pollen</div><span class="pill pill-teal">Strong</span></div>
+                <div style="font-size:12px;color:var(--text3);margin-top:3px">78% correlation · 18 cluster matches</div>
+              </div>
+              <div style="padding:12px;border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer" onclick="showToast('Expanding pattern...')">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="font-size:13px;font-weight:500;color:var(--text)">Fatigue ↔ Sleep Pattern</div><span class="pill pill-amber">Moderate</span></div>
+                <div style="font-size:12px;color:var(--text3);margin-top:3px">54% correlation · 7 consecutive nights</div>
+              </div>
+              <div style="padding:12px;border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer" onclick="showToast('Expanding pattern...')">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="font-size:13px;font-weight:500;color:var(--text)">Back Pain ↔ Activity Level</div><span class="pill pill-gray">Weak</span></div>
+                <div style="font-size:12px;color:var(--text3);margin-top:3px">31% correlation · needs more data</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: SETTINGS ══ -->
+      <div class="page" id="page-settings">
+        <div class="two-col">
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="section-title" style="margin-bottom:18px">Profile</div>
+              <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)">
+                <div class="avatar" style="width:56px;height:56px;font-size:18px">ZW</div>
+                <div><div style="font-size:15px;font-weight:500">Zach Wiwad</div><div style="font-size:12px;color:var(--text3)">zach.wiwad@email.com · Patient</div></div>
+                <button class="btn btn-ghost" style="margin-left:auto;font-size:12px" onclick="showToast('Edit mode enabled')"><i class="ti ti-edit"></i> Edit</button>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">First Name</label><input class="form-input" value="Zach"></div>
+                <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" value="Wiwad"></div>
+                <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" class="form-input" value="1998-03-15"></div>
+                <div class="form-group"><label class="form-label">Blood Type</label><select class="form-select"><option>A+</option><option>A-</option><option>B+</option><option>O+</option><option selected>O-</option></select></div>
+                <div class="form-group form-full"><label class="form-label">Location</label><input class="form-input" value="Edmonton, Alberta, Canada"></div>
+              </div>
+              <button class="btn btn-primary" onclick="saveProfile()"><i class="ti ti-check"></i> Save Changes</button>
+            </div>
+            <div class="card">
+              <div class="section-title" style="margin-bottom:18px">Healthcare Providers</div>
+              <div class="med-item"><div class="med-ico" style="background:var(--blue-light)"><i class="ti ti-stethoscope" style="color:var(--blue)"></i></div><div><div class="med-name">Dr. Riya Patel</div><div class="med-dose">General Practitioner · Kaye Edmonton Clinic</div></div><span class="pill pill-teal" style="margin-left:auto">Primary</span></div>
+              <div class="med-item"><div class="med-ico" style="background:var(--purple-light)"><i class="ti ti-heart-rate" style="color:var(--purple)"></i></div><div><div class="med-name">Dr. Kenji Yamamoto</div><div class="med-dose">Cardiologist · Mazankowski Heart Institute</div></div></div>
+              <button class="btn btn-ghost" style="margin-top:12px;font-size:12px" onclick="showToast('Add provider form opening...')"><i class="ti ti-plus"></i> Add Provider</button>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="section-title" style="margin-bottom:18px">Notifications</div>
+              <div style="display:flex;flex-direction:column;gap:12px" id="notifSettings">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:500">Medication reminders</div><div style="font-size:12px;color:var(--text3)">Get reminded to take your medications</div></div><label class="toggle"><input type="checkbox" checked onchange="showToast('Setting updated')"><span class="toggle-slider"></span></label></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:500">Community alerts</div><div style="font-size:12px;color:var(--text3)">Nearby symptom trend notifications</div></div><label class="toggle"><input type="checkbox" checked onchange="showToast('Setting updated')"><span class="toggle-slider"></span></label></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:500">Weekly health digest</div><div style="font-size:12px;color:var(--text3)">Email summary every Monday</div></div><label class="toggle"><input type="checkbox" onchange="showToast('Setting updated')"><span class="toggle-slider"></span></label></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0"><div><div style="font-size:13px;font-weight:500">ML pattern alerts</div><div style="font-size:12px;color:var(--text3)">Notify when new patterns are detected</div></div><label class="toggle"><input type="checkbox" checked onchange="showToast('Setting updated')"><span class="toggle-slider"></span></label></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="section-title" style="margin-bottom:18px">Privacy & Data</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="padding:12px;background:var(--teal-light);border-radius:var(--r-sm);border:1px solid #9fe1cb"><div style="font-size:13px;font-weight:500;color:#0b5c42">Data Sharing: Controlled</div><div style="font-size:12px;color:#1a7a58;margin-top:2px">You control what is shared and with whom. Anonymous community data only.</div></div>
+                <button class="btn btn-ghost" style="font-size:12px;justify-content:flex-start" onclick="showToast('Export started — check your email')"><i class="ti ti-download"></i> Export All My Data</button>
+                <button class="btn btn-danger" style="font-size:12px;justify-content:flex-start" onclick="showToast('Please contact support to delete account')"><i class="ti ti-trash"></i> Delete Account</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end content-area -->
+  </div><!-- end main-area -->
+</div><!-- end app -->
+
+<style>
+.toggle{position:relative;display:inline-block;width:40px;height:22px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#dde2da;border-radius:22px;transition:.2s}
+.toggle-slider:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-slider{background:var(--teal)}
+.toggle input:checked+.toggle-slider:before{transform:translateX(18px)}
+</style>
+
+<script>
+// ══ API (connects UI → server → Supabase) ══
+// Set to false when login + database are working
+var localMode = false;
+
+var API_BASE = (window.location.port === '5173' || window.location.port === '4173')
+  ? '/api'
+  : 'http://localhost:3000/api';
+
+var data = { symptoms: [], medications: [], allergies: [], timeline: [] };
+var selectedSeverity = 'Mild';
+var selectedPain = 1;
+var categoryNames = [];
+
+function getDemoData() {
+  return {
+    symptoms: [
+      {id:1,date:'2026-05-06',time:'09:14',symptom:'Headache',location:'Left temple',severity:'Severe',pain:7,notes:'Started after waking'},
+      {id:2,date:'2026-05-04',time:'14:30',symptom:'Fatigue',location:'General',severity:'Moderate',pain:5,notes:'Post-lunch energy crash'},
+      {id:3,date:'2026-05-03',time:'11:00',symptom:'Back Pain',location:'Lower back',severity:'Mild',pain:3,notes:'After sitting long periods'}
+    ],
+    medications: [
+      {id:1,name:'Metformin',dosage:'500mg',frequency:'Twice daily',prescribedBy:'Dr. Patel',startDate:'2025-01-15',status:'Active',color:'teal',times:['8:00 AM','8:00 PM'],taken:[true,false]},
+      {id:2,name:'Lisinopril',dosage:'10mg',frequency:'Once daily',prescribedBy:'Dr. Yamamoto',startDate:'2025-03-20',status:'Active',color:'purple',times:['8:00 PM'],taken:[false]}
+    ],
+    allergies: [
+      {id:1,name:'Penicillin',category:'Antibiotic',severity:'Severe',reaction:'Anaphylaxis, hives',diagnosed:'2018',icon:'ti-alert-circle'},
+      {id:2,name:'Pollen',category:'Environmental',severity:'Moderate',reaction:'Sneezing, itchy eyes',diagnosed:'2015',icon:'ti-leaf'}
+    ],
+    timeline: [
+      {date:'2026-05-06',time:'09:14',type:'symptom',title:'Headache logged',detail:'Severity 7/10 · Left temple',icon:'ti-activity',color:'coral'},
+      {date:'2026-05-06',time:'08:00',type:'medication',title:'Metformin taken',detail:'500mg morning dose',icon:'ti-pill',color:'teal'},
+      {date:'2026-05-04',time:'14:30',type:'symptom',title:'Fatigue logged',detail:'Severity 5/10 · General',icon:'ti-activity',color:'coral'}
+    ]
+  };
+}
+
+function startLocalMode() {
+  localMode = true;
+  clearToken();
+  loadLocalData();
+}
+
+function loadLocalData() {
+  data = JSON.parse(JSON.stringify(getDemoData()));
+  showApp();
+  refreshUi();
+}
+
+function refreshUi() {
+  document.getElementById('symCount').textContent = data.symptoms.length;
+  document.getElementById('symBadge').textContent = data.symptoms.length;
+  document.getElementById('medCount').textContent = data.medications.filter(function(m) { return m.status === 'Active'; }).length;
+  renderSymTable(data.symptoms);
+  renderMedPage();
+  renderAllergyTable();
+  renderTimeline(data.timeline);
+  initDashCharts();
+}
+
+function getToken() { return localStorage.getItem('curasana_token'); }
+function setToken(t) { localStorage.setItem('curasana_token', t); }
+function clearToken() { localStorage.removeItem('curasana_token'); }
+
+async function apiFetch(path, options) {
+  options = options || {};
+  var headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+  var token = getToken();
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  var url = API_BASE + path;
+  var res;
+  try {
+    res = await fetch(url, Object.assign({}, options, { headers: headers }));
+  } catch (e) {
+    throw new Error('Cannot reach API at ' + url + '. Start server: cd server && npm run dev');
+  }
+  var text = await res.text();
+  var body = {};
+  try { body = text ? JSON.parse(text) : {}; } catch { body = { message: text }; }
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error('API route not found (404). Restart server: stop old node processes, then cd server && npm run dev');
+    }
+    if (body.errors && body.errors[0]) throw new Error(body.errors[0].msg);
+    throw new Error(body.message || body.error || ('Request failed (' + res.status + ')'));
+  }
+  return body;
+}
+
+function setAuthTab(tab) {
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+  document.getElementById('authLogin').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('authRegister').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('authError').textContent = '';
+}
+
+function showAuthScreen() {
+  document.getElementById('authOverlay').classList.remove('hidden');
+  document.getElementById('mainApp').classList.add('hidden');
+}
+
+function showApp() {
+  document.getElementById('authOverlay').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+}
+
+async function doLogin() {
+  try {
+    document.getElementById('authError').textContent = '';
+    var result = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value
+      })
+    });
+    setToken(result.token);
+    showApp();
+    await loadFromApi();
+    showToast('Signed in');
+  } catch (e) {
+    document.getElementById('authError').textContent = e.message;
+  }
+}
+
+async function doRegister() {
+  try {
+    document.getElementById('authError').textContent = '';
+    var result = await apiFetch('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: document.getElementById('regUsername').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value,
+        firstName: document.getElementById('regFirst').value,
+        lastName: document.getElementById('regLast').value
+      })
+    });
+    setToken(result.token);
+    showApp();
+    await loadFromApi();
+    showToast('Account created');
+  } catch (e) {
+    document.getElementById('authError').textContent = e.message;
+  }
+}
+
+function applyProfile(profile) {
+  if (!profile) return;
+  var name = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || profile.username;
+  document.getElementById('topbarTitle').textContent = 'Good morning, ' + (profile.firstName || name) + ' 👋';
+  var initials = (profile.firstName?.[0] || 'U') + (profile.lastName?.[0] || '');
+  document.querySelectorAll('.avatar').forEach(function(el) { el.textContent = initials.toUpperCase(); });
+  document.querySelectorAll('.user-name').forEach(function(el) { el.textContent = name; });
+}
+
+async function loadFromApi() {
+  localMode = false;
+  var results = await Promise.all([
+    apiFetch('/symptoms'),
+    apiFetch('/medications'),
+    apiFetch('/allergies'),
+    apiFetch('/timeline'),
+    apiFetch('/patients/me').catch(function() { return null; }),
+    apiFetch('/categories').catch(function() { return []; })
+  ]);
+  data.symptoms = results[0];
+  data.medications = results[1];
+  data.allergies = results[2];
+  data.timeline = results[3];
+  applyProfile(results[4]);
+  categoryNames = (results[5] || []).map(function(c) { return c.category_name; });
+  refreshUi();
+}
+
+async function tryAutoLogin() {
+  if (localMode) {
+    loadLocalData();
+    return;
+  }
+  if (!getToken()) {
+    showAuthScreen();
+    return;
+  }
+  try {
+    await apiFetch('/auth/me');
+    showApp();
+    await loadFromApi();
+  } catch {
+    clearToken();
+    showAuthScreen();
+  }
+}
+
+// ══ NAVIGATION ══
+function nav(page, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  var titles = {
+    dashboard:'Dashboard',symptoms:'Symptoms',medications:'Medications',
+    allergies:'Allergies',timeline:'Health Timeline',analytics:'Analytics',
+    reports:'Doctor Reports',community:'Community Trends',
+    insights:'ML Insights',settings:'Settings'
+  };
+  document.getElementById('topbarTitle').textContent = page==='dashboard'?'Good morning, Zach 👋':titles[page];
+  document.getElementById('topbarSub').textContent = page==='dashboard'?'Wednesday, May 6, 2026':'Curasana · Personal Health Platform';
+  if(page==='symptoms') renderSymTable(data.symptoms);
+  if(page==='medications') renderMedPage();
+  if(page==='allergies') renderAllergyTable();
+  if(page==='timeline') renderTimeline(data.timeline);
+  if(page==='analytics') setTimeout(renderAnalyticsCharts,50);
+  if(page==='community') setTimeout(renderCommunityChart,50);
+  if(page==='insights') setTimeout(renderInsightChart,50);
+}
+
+// ══ TOAST ══
+function showToast(msg) {
+  var t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ══ MODAL ══
+function openModal(title, bodyHtml) {
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalBody').innerHTML=bodyHtml;
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+function closeModal(e) {
+  if(!e || e.target===document.getElementById('modalBackdrop')) {
+    document.getElementById('modalBackdrop').classList.remove('open');
+  }
+}
+
+// ══ SYMPTOM MODAL ══
+function openSymptomModal() {
+  openModal('Log New Symptom', `
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Symptom</label>
+        <select class="form-select" id="mSymptom">
+          <option>Headache</option><option>Fatigue</option><option>Nausea</option>
+          <option>Back Pain</option><option>Dizziness</option><option>Shortness of Breath</option>
+          <option>Chest Pain</option><option>Fever</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Body Location</label>
+        <input class="form-input" id="mLocation" placeholder="e.g. left temple, lower back">
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Severity</label>
+      <div class="sev-group">
+        <button class="sev-opt sel-mild" onclick="setSev(this,'Mild','sel-mild')">Mild</button>
+        <button class="sev-opt" onclick="setSev(this,'Moderate','sel-moderate')">Moderate</button>
+        <button class="sev-opt" onclick="setSev(this,'Severe','sel-severe')">Severe</button>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Pain Scale (1–10)</label>
+      <div class="pain-scale" id="painScale">
+        ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="pain-num${n===1?' sel':''}" onclick="setPain(this,${n})">${n}</button>`).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="mNotes" placeholder="Any triggers, context, or additional details..."></textarea>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveSymptom()"><i class="ti ti-check"></i> Save Symptom</button>
+  `);
+  selectedSeverity='Mild'; selectedPain=1;
+}
+
+function setSev(btn,sev,cls) {
+  selectedSeverity=sev;
+  btn.closest('.sev-group').querySelectorAll('.sev-opt').forEach(b=>{b.className='sev-opt'});
+  btn.className='sev-opt '+cls;
+}
+function setPain(btn,n) {
+  selectedPain=n;
+  btn.closest('.pain-scale').querySelectorAll('.pain-num').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+async function saveSymptom() {
+  var sym=document.getElementById('mSymptom').value;
+  var loc=document.getElementById('mLocation').value||'General';
+  var notes=document.getElementById('mNotes').value;
+  if (localMode) {
+    var now = new Date();
+    var entry = {id: Date.now(), date: now.toISOString().split('T')[0], time: now.toTimeString().slice(0,5), symptom: sym, location: loc, severity: selectedSeverity, pain: selectedPain, notes: notes};
+    data.symptoms.unshift(entry);
+    data.timeline.unshift({date: entry.date, time: entry.time, type: 'symptom', title: sym + ' logged', detail: 'Severity ' + entry.pain + '/10 · ' + loc, icon: 'ti-activity', color: 'coral'});
+    closeModal();
+    showToast('✓ ' + sym + ' saved (demo mode)');
+    refreshUi();
+    return;
+  }
+  try {
+    var entry = await apiFetch('/symptoms', {
+      method: 'POST',
+      body: JSON.stringify({ symptom: sym, location: loc, severity: selectedSeverity, pain: selectedPain, notes: notes })
+    });
+    data.symptoms.unshift(entry);
+    closeModal();
+    showToast('✓ '+sym+' saved to database');
+    data.timeline = await apiFetch('/timeline');
+    refreshUi();
+  } catch (e) { showToast(e.message); }
+}
+
+// ══ SYMPTOM TABLE ══
+function renderSymTable(arr) {
+  var sevPill={'Mild':'pill-blue','Moderate':'pill-amber','Severe':'pill-coral'};
+  document.getElementById('symTableBody').innerHTML=arr.map(s=>`
+    <tr>
+      <td style="color:var(--text2)">${s.date} ${s.time}</td>
+      <td><strong>${s.symptom}</strong></td>
+      <td style="color:var(--text2)">${s.location}</td>
+      <td><span class="pill ${sevPill[s.severity]||'pill-gray'}">${s.severity}</span></td>
+      <td>${painDots(s.pain)}</td>
+      <td style="color:var(--text3);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.notes||'—'}</td>
+      <td><button class="btn btn-ghost" style="padding:4px 8px;font-size:11px" onclick="deleteSymptom(${s.id})"><i class="ti ti-trash"></i></button></td>
+    </tr>`).join('');
+}
+function painDots(n) {
+  var c=n<=3?'#185fa5':n<=6?'#ba7517':'#d85a30';
+  return `<span style="font-size:12px;font-weight:600;color:${c}">${n}/10</span>`;
+}
+async function deleteSymptom(id) {
+  if (localMode) {
+    data.symptoms = data.symptoms.filter(function(s) { return s.id !== id; });
+    refreshUi();
+    showToast('Symptom removed');
+    return;
+  }
+  try {
+    await apiFetch('/symptoms/' + id, { method: 'DELETE' });
+    data.symptoms = data.symptoms.filter(function(s) { return s.id !== id; });
+    refreshUi();
+    showToast('Symptom removed from database');
+  } catch (e) { showToast(e.message); }
+}
+function filterSymptoms(q) {
+  var f=data.symptoms.filter(s=>s.symptom.toLowerCase().includes(q.toLowerCase())||s.notes.toLowerCase().includes(q.toLowerCase()));
+  renderSymTable(f);
+}
+
+// ══ MEDICATION MODAL ══
+function openMedModal() {
+  openModal('Add Medication', `
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Medication Name</label><input class="form-input" id="mMedName" placeholder="e.g. Metformin"></div>
+      <div class="form-group"><label class="form-label">Dosage</label><input class="form-input" id="mMedDose" placeholder="e.g. 500mg"></div>
+      <div class="form-group"><label class="form-label">Frequency</label>
+        <select class="form-select" id="mMedFreq"><option>Once daily</option><option>Twice daily</option><option>Three times daily</option><option>At bedtime</option><option>As needed (PRN)</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Prescribed By</label><input class="form-input" id="mMedDoc" placeholder="Dr. ..."></div>
+      <div class="form-group"><label class="form-label">Start Date</label><input type="date" class="form-input" id="mMedStart"></div>
+      <div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="mMedNotes" placeholder="Optional notes"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="saveMed()"><i class="ti ti-check"></i> Add Medication</button>
+  `);
+}
+async function saveMed() {
+  var name=document.getElementById('mMedName').value;
+  if(!name){showToast('Please enter a medication name');return;}
+  if (localMode) {
+    var colors = ['teal','purple','blue','pink','amber'];
+    data.medications.push({
+      id: Date.now(), name: name, dosage: document.getElementById('mMedDose').value || '—',
+      frequency: document.getElementById('mMedFreq').value,
+      prescribedBy: document.getElementById('mMedDoc').value || 'Self',
+      startDate: document.getElementById('mMedStart').value || new Date().toISOString().split('T')[0],
+      status: 'Active', color: colors[data.medications.length % colors.length], times: [], taken: []
+    });
+    closeModal();
+    showToast('✓ ' + name + ' added (demo mode)');
+    refreshUi();
+    return;
+  }
+  try {
+    var med = await apiFetch('/medications', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: name,
+        dosage: document.getElementById('mMedDose').value || '—',
+        frequency: document.getElementById('mMedFreq').value,
+        prescribedBy: document.getElementById('mMedDoc').value || 'Self',
+        startDate: document.getElementById('mMedStart').value || new Date().toISOString().split('T')[0],
+        status: 'Active'
+      })
+    });
+    data.medications.push(med);
+    closeModal();
+    showToast('✓ '+name+' saved to database');
+    refreshUi();
+  } catch (e) { showToast(e.message); }
+}
+function renderMedPage() {
+  // checklist
+  var cl='';
+  data.medications.forEach(m=>{
+    if(m.times&&m.times.length){
+      m.times.forEach((t,i)=>{
+        cl+=`<label class="check-item"><input type="checkbox" ${m.taken[i]?'checked':''} onchange="toggleMedTaken(${m.id},${i},this.checked)">
+          <div><div class="check-label">${m.name} ${m.dosage}</div><div class="check-sub">${t}</div></div>
+          <span class="pill ${m.taken[i]?'pill-teal':'pill-amber'}" style="margin-left:auto">${m.taken[i]?'Taken':t}</span>
+        </label>`;
+      });
+    }
+  });
+  if(!cl) cl='<div class="empty-state"><p>No scheduled doses today</p></div>';
+  document.getElementById('medChecklist').innerHTML=cl;
+  // table
+  var clrs={'teal':'var(--teal-light)','purple':'var(--purple-light)','blue':'var(--blue-light)','coral':'var(--coral-light)','amber':'var(--amber-light)','pink':'var(--pink-light)'};
+  var tcl={'teal':'var(--teal)','purple':'var(--purple)','blue':'var(--blue)','coral':'var(--coral)','amber':'var(--amber)','pink':'var(--pink)'};
+  document.getElementById('medTableBody').innerHTML=data.medications.map(m=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px"><div class="med-ico" style="background:${clrs[m.color]||'var(--bg)'}"><i class="ti ti-pill" style="color:${tcl[m.color]||'var(--text2)'}"></i></div><div><div style="font-size:13px;font-weight:500">${m.name}</div></div></div></td>
+      <td>${m.dosage}</td><td>${m.frequency}</td><td>${m.prescribedBy}</td><td style="color:var(--text3)">${m.startDate}</td>
+      <td><span class="pill ${m.status==='Active'?'pill-teal':m.status==='PRN'?'pill-gray':'pill-coral'}">${m.status}</span></td>
+      <td><button class="btn btn-ghost" style="padding:4px 8px;font-size:11px" onclick="deleteMed(${m.id})"><i class="ti ti-trash"></i></button></td>
+    </tr>`).join('');
+  document.getElementById('activeMedStat').textContent=data.medications.filter(m=>m.status==='Active').length;
+}
+async function toggleMedTaken(id,idx,val) {
+  var med = data.medications.find(function(m) { return m.id === id; });
+  if (localMode) {
+    if (med && med.taken) med.taken[idx] = val;
+    showToast(val ? '✓ Marked as taken' : 'Unmarked');
+    renderMedPage();
+    return;
+  }
+  if (!val) { showToast('Unmarked'); return; }
+  try {
+    await apiFetch('/medications/' + id + '/log', { method: 'POST', body: JSON.stringify({ taken: true }) });
+    showToast('✓ Marked as taken');
+    data.timeline = await apiFetch('/timeline');
+    renderTimeline(data.timeline);
+  } catch (e) { showToast(e.message); }
+}
+async function deleteMed(id) {
+  if (localMode) {
+    data.medications = data.medications.filter(function(m) { return m.id !== id; });
+    refreshUi();
+    showToast('Medication removed');
+    return;
+  }
+  try {
+    await apiFetch('/medications/' + id, { method: 'DELETE' });
+    data.medications = data.medications.filter(function(m) { return m.id !== id; });
+    refreshUi();
+    showToast('Medication removed from database');
+  } catch (e) { showToast(e.message); }
+}
+
+// ══ ALLERGY MODAL ══
+function openAllergyModal() {
+  openModal('Add Allergy / Sensitivity', `
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Allergen Name</label><input class="form-input" id="mAlName" placeholder="e.g. Penicillin, Peanuts"></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-select" id="mAlCat"><option>Antibiotic</option><option>Food</option><option>Environmental</option><option>Medication</option><option>Insect</option><option>Other</option></select>
+      </div>
+      <div class="form-group form-full"><label class="form-label">Severity</label>
+        <div class="sev-group">
+          <button class="sev-opt sel-mild" onclick="setSev(this,'Mild','sel-mild')">Mild</button>
+          <button class="sev-opt" onclick="setSev(this,'Moderate','sel-moderate')">Moderate</button>
+          <button class="sev-opt" onclick="setSev(this,'Severe','sel-severe')">Severe</button>
+        </div>
+      </div>
+      <div class="form-group form-full"><label class="form-label">Reaction Description</label><input class="form-input" id="mAlReaction" placeholder="e.g. hives, anaphylaxis, nausea"></div>
+      <div class="form-group"><label class="form-label">Year Diagnosed</label><input class="form-input" id="mAlYear" placeholder="e.g. 2018"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="saveAllergy()"><i class="ti ti-check"></i> Save Allergy</button>
+  `);
+  selectedSeverity='Mild';
+}
+async function saveAllergy() {
+  var name=document.getElementById('mAlName').value;
+  if(!name){showToast('Please enter an allergen name');return;}
+  if (localMode) {
+    data.allergies.push({
+      id: Date.now(), name: name, category: document.getElementById('mAlCat').value,
+      severity: selectedSeverity, reaction: document.getElementById('mAlReaction').value || 'Unknown',
+      diagnosed: document.getElementById('mAlYear').value || '—', icon: 'ti-alert-circle'
+    });
+    closeModal();
+    showToast('✓ Allergy added (demo mode)');
+    refreshUi();
+    return;
+  }
+  try {
+    var al = await apiFetch('/allergies', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: name,
+        category: document.getElementById('mAlCat').value,
+        severity: selectedSeverity,
+        reaction: document.getElementById('mAlReaction').value || 'Unknown',
+        diagnosed: document.getElementById('mAlYear').value || '—'
+      })
+    });
+    data.allergies.push(al);
+    closeModal();
+    showToast('✓ Allergy saved to database');
+    refreshUi();
+  } catch (e) { showToast(e.message); }
+}
+function renderAllergyTable() {
+  var sc={'Severe':'pill-coral','Moderate':'pill-amber','Mild':'pill-blue'};
+  document.getElementById('allergyTableBody').innerHTML=data.allergies.map(a=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><i class="ti ${a.icon}" style="font-size:16px;color:var(--${a.severity==='Severe'?'coral':a.severity==='Moderate'?'amber':'blue'})"></i><strong>${a.name}</strong></div></td>
+      <td style="color:var(--text2)">${a.category}</td>
+      <td><span class="pill ${sc[a.severity]||'pill-gray'}">${a.severity}</span></td>
+      <td style="color:var(--text2)">${a.reaction}</td>
+      <td style="color:var(--text3)">${a.diagnosed}</td>
+      <td><button class="btn btn-ghost" style="padding:4px 8px;font-size:11px" onclick="deleteAllergy(${a.id})"><i class="ti ti-trash"></i></button></td>
+    </tr>`).join('');
+  updateAllergyCounts();
+}
+async function deleteAllergy(id) {
+  if (localMode) {
+    data.allergies = data.allergies.filter(function(a) { return a.id !== id; });
+    refreshUi();
+    showToast('Allergy removed');
+    return;
+  }
+  try {
+    await apiFetch('/allergies/' + id, { method: 'DELETE' });
+    data.allergies = data.allergies.filter(function(a) { return a.id !== id; });
+    refreshUi();
+    showToast('Allergy removed from database');
+  } catch (e) { showToast(e.message); }
+}
+function updateAllergyCounts(){
+  document.getElementById('severeCount').textContent=data.allergies.filter(a=>a.severity==='Severe').length;
+  document.getElementById('moderateCount').textContent=data.allergies.filter(a=>a.severity==='Moderate').length;
+  document.getElementById('mildCount').textContent=data.allergies.filter(a=>a.severity==='Mild').length;
+}
+
+// ══ TIMELINE ══
+function renderTimeline(arr) {
+  var bg={'coral':'var(--coral-light)','teal':'var(--teal-light)','blue':'var(--blue-light)','amber':'var(--amber-light)'};
+  var fc={'coral':'var(--coral)','teal':'var(--teal)','blue':'var(--blue)','amber':'var(--amber)'};
+  document.getElementById('timelineList').innerHTML=arr.map((e,i)=>`
+    <div class="tl-item">
+      <div class="tl-dot" style="background:${bg[e.color]||'var(--bg)'}"><i class="ti ${e.icon}" style="color:${fc[e.color]||'var(--text2)'};font-size:14px"></i></div>
+      <div class="tl-content">
+        <div class="tl-title">${e.title}</div>
+        <div class="tl-detail">${e.detail}</div>
+        <div class="tl-time">${e.date} · ${e.time}</div>
+      </div>
+    </div>`).join('');
+}
+function filterTimeline(type) {
+  var f=type?data.timeline.filter(e=>e.type===type):data.timeline;
+  renderTimeline(f);
+}
+
+// ══ REPORT GENERATION ══
+function generateReport() {
+  var type=document.getElementById('reportType')?document.getElementById('reportType').value:'30-Day Health Summary';
+  document.getElementById('reportPreview').innerHTML=`
+    <div class="report-header">
+      <div class="report-title">${type}</div>
+      <div class="report-sub">Generated ${new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'})}</div>
+      <div class="report-meta">
+        <div class="report-meta-item"><div class="report-meta-label">Patient</div><div class="report-meta-val">Zach Wiwad</div></div>
+        <div class="report-meta-item"><div class="report-meta-label">DOB</div><div class="report-meta-val">Mar 15, 1998</div></div>
+        <div class="report-meta-item"><div class="report-meta-label">Blood Type</div><div class="report-meta-val">O−</div></div>
+        <div class="report-meta-item"><div class="report-meta-label">Provider</div><div class="report-meta-val">Dr. Patel</div></div>
+      </div>
+    </div>
+    <div class="report-section">
+      <div class="report-section-title">Symptoms (${data.symptoms.length} events)</div>
+      ${data.symptoms.slice(0,4).map(s=>`<div class="med-item" style="padding:8px 0"><div><div class="med-name">${s.symptom}</div><div class="med-dose">${s.date} · ${s.location} · Pain ${s.pain}/10</div></div><span class="pill ${s.severity==='Severe'?'pill-coral':s.severity==='Moderate'?'pill-amber':'pill-blue'}" style="margin-left:auto">${s.severity}</span></div>`).join('')}
+    </div>
+    <div class="report-section">
+      <div class="report-section-title">Active Medications (${data.medications.filter(m=>m.status==='Active').length})</div>
+      ${data.medications.map(m=>`<div class="med-item" style="padding:8px 0"><div><div class="med-name">${m.name}</div><div class="med-dose">${m.dosage} · ${m.frequency}</div></div><span class="pill pill-teal" style="margin-left:auto">${m.status}</span></div>`).join('')}
+    </div>
+    <div class="report-section">
+      <div class="report-section-title">Allergies (${data.allergies.length})</div>
+      ${data.allergies.map(a=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:13px;font-weight:500">${a.name}</span><span class="pill ${a.severity==='Severe'?'pill-coral':a.severity==='Moderate'?'pill-amber':'pill-blue'}">${a.severity}</span></div>`).join('')}
+    </div>
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="showToast('PDF downloading...')"><i class="ti ti-file-export"></i> Download PDF</button>
+      <button class="btn btn-ghost" onclick="showToast('Sent to Dr. Patel via secure portal')"><i class="ti ti-send"></i> Send to Doctor</button>
+    </div>`;
+  showToast('Report generated successfully');
+}
+
+// ══ CHARTS ══
+var chartInstances={};
+function mkChart(id,cfg){if(chartInstances[id]){chartInstances[id].destroy();}var ctx=document.getElementById(id);if(!ctx)return;chartInstances[id]=new Chart(ctx,cfg);return chartInstances[id];}
+
+function initDashCharts(){
+  mkChart('dashLineChart',{type:'line',data:{labels:['Apr 7','Apr 10','Apr 13','Apr 16','Apr 19','Apr 22','Apr 25','Apr 28','May 1','May 4','May 6'],datasets:[{label:'Headache',data:[0,1,0,2,1,0,1,0,2,1,2],borderColor:'#1d9e75',backgroundColor:'rgba(29,158,117,.07)',tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#1d9e75'},{label:'Fatigue',data:[1,0,1,1,0,2,0,1,1,0,1],borderColor:'#534ab7',backgroundColor:'rgba(83,74,183,.06)',tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#534ab7'},{label:'Back Pain',data:[0,0,1,0,2,1,0,2,0,1,0],borderColor:'#d85a30',backgroundColor:'rgba(216,90,48,.06)',tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#d85a30'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:8,boxHeight:8,usePointStyle:true,font:{size:11},color:'#536058'}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#8a9890',maxRotation:0}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},color:'#8a9890',stepSize:1}}}}});
+  mkChart('dashDonut',{type:'doughnut',data:{labels:['Headache','Fatigue','Back Pain','Nausea'],datasets:[{data:[4,3,3,2],backgroundColor:['#1d9e75','#534ab7','#d85a30','#ba7517'],borderWidth:0,spacing:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'bottom',labels:{boxWidth:8,boxHeight:8,usePointStyle:true,font:{size:11},color:'#536058'}}}}});
+}
+
+function renderAnalyticsCharts(){
+  mkChart('analyticsLine',{type:'line',data:{labels:['Apr 7','Apr 10','Apr 13','Apr 16','Apr 19','Apr 22','Apr 25','Apr 28','May 1','May 4','May 6'],datasets:[{label:'Total symptoms',data:[1,1,2,3,2,3,1,3,2,2,3],borderColor:'#1d9e75',backgroundColor:'rgba(29,158,117,.08)',tension:.4,fill:true,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#8a9890',maxRotation:0}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},color:'#8a9890',stepSize:1}}}}});
+  mkChart('painBar',{type:'bar',data:{labels:['1','2','3','4','5','6','7','8','9','10'],datasets:[{label:'Events',data:[0,1,2,3,2,1,2,1,0,0],backgroundColor:['#e6f1fb','#d0e8fa','#b0d4f5','#8ab8ec','#5a98dd','#d85a30','#c84520','#b83010','#a82000','#981000'],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#8a9890'}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},color:'#8a9890',stepSize:1}}}}});
+  mkChart('adherenceChart',{type:'bar',data:{labels:['Week 1','Week 2','Week 3','Week 4'],datasets:[{label:'Adherence %',data:[82,90,85,91],backgroundColor:'rgba(13,158,117,.15)',borderColor:'#1d9e75',borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#8a9890'}},y:{max:100,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},color:'#8a9890',callback:v=>v+'%'}}}}});
+  mkChart('symPie',{type:'doughnut',data:{labels:['Headache','Fatigue','Back Pain','Nausea','Dizziness'],datasets:[{data:[4,3,3,2,1],backgroundColor:['#1d9e75','#534ab7','#d85a30','#ba7517','#185fa5'],borderWidth:0,spacing:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:8,boxHeight:8,usePointStyle:true,font:{size:11},color:'#536058'}}}}});
+  mkChart('tlBarChart',{type:'bar',data:{labels:['Apr','May'],datasets:[{label:'Symptoms',data:[8,4],backgroundColor:'rgba(216,90,48,.7)',borderRadius:4},{label:'Meds',data:[55,5],backgroundColor:'rgba(13,158,117,.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:8,font:{size:11},color:'#536058'}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#8a9890'}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},color:'#8a9890'}}}}});
+}
+
+function renderCommunityChart(){
+  mkChart('communityChart',{type:'bar',data:{labels:['Headache','Allergy','Fatigue','Nausea','Cold/Flu','Back Pain'],datasets:[{label:'Reports this week',data:[18,34,28,11,9,6],backgroundColor:['rgba(29,158,117,.7)','rgba(186,117,23,.7)','rgba(83,74,183,.7)','rgba(216,90,48,.7)','rgba(24,95,165,.7)','rgba(138,148,144,.7)'],borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#8a9890'}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},color:'#8a9890'}}}}});
+}
+
+function renderInsightChart(){
+  mkChart('correlationChart',{type:'line',data:{labels:['Feb','Mar','Apr','May'],datasets:[{label:'Pollen Level',data:[20,80,150,180],borderColor:'#ba7517',backgroundColor:'rgba(186,117,23,.08)',tension:.4,fill:true,pointRadius:4,yAxisID:'y1'},{label:'Headache Events',data:[2,5,8,10],borderColor:'#1d9e75',backgroundColor:'rgba(29,158,117,.08)',tension:.4,fill:true,pointRadius:4,yAxisID:'y2'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{boxWidth:8,boxHeight:8,usePointStyle:true,font:{size:11},color:'#536058'}}},scales:{y1:{type:'linear',position:'left',grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},color:'#8a9890'}},y2:{type:'linear',position:'right',grid:{display:false},ticks:{font:{size:10},color:'#8a9890'}},x:{grid:{display:false},ticks:{font:{size:11},color:'#8a9890'}}}}});
+}
+
+function switchChart(tab, mode) {
+  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+}
+
+async function saveProfile() {
+  if (localMode) {
+    showToast('Profile saved (demo mode)');
+    return;
+  }
+  try {
+    var profile = await apiFetch('/patients/me', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        firstName: document.querySelector('#page-settings input[value="Zach"]')?.value || document.querySelectorAll('#page-settings .form-input')[0]?.value,
+        lastName: document.querySelectorAll('#page-settings .form-input')[1]?.value,
+        dateOfBirth: document.querySelector('#page-settings input[type="date"]')?.value
+      })
+    });
+    applyProfile(profile);
+    showToast('Profile saved to database');
+  } catch (e) { showToast(e.message); }
+}
+
+// ══ INIT ══
+window.addEventListener('load', function() {
+  tryAutoLogin();
+});
+</script>
+</body>
+</html>
