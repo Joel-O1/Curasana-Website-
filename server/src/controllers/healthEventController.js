@@ -17,4 +17,24 @@ const getHealthEvents = async (req, res) => {
     }
 }
 
-module.exports = getHealthEvents;
+
+const getPrescriptions = async (req, res) => {
+    try {
+        const prescriptions = await prisma.prescription.findMany({
+            where: { 
+                patient_profiles: {
+                    user_id: req.user.userId
+                }
+            }
+        });
+        res.status(200).json(prescriptions);
+
+    } catch (error){
+        console.error(error);
+        res.status(500).json({error: 'Failed to fetch prescriptions'});
+    }
+}
+
+
+
+module.exports = { getHealthEvents, getPrescriptions };

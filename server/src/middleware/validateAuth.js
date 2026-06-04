@@ -4,7 +4,7 @@ const validateRegister = [
     body('email')
         .trim()
         .isEmail().withMessage('Please enter a valid email address')
-        .normalizeEmail(),//converts to lowercase and removes whitespaces etc.
+        .customSanitizer(value => value.toLowerCase()),//converts to lowercase and removes whitespaces etc.
 
     body('username')
         .trim()
@@ -32,10 +32,11 @@ const validateLogin = [
     body('email')
         .trim()
         .isEmail().withMessage('Please enter a valid email address')
-        .normalizeEmail(),
+        .customSanitizer(value => value.toLowerCase()),
 
     body('password')
         .notEmpty().withMessage('Password is required'),
+    
 
     (req, res, next) => {
         const errors = validationResult(req);

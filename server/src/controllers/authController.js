@@ -41,17 +41,24 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
     try {
+
+        //console.log("Login attempt with email:", req.body.email); // Log the email being used for login --- DEBUGGING PURPOSES ONLY, REMOVE IN PRODUCTION ---
         const { email, username, password } = req.body;
+
+        // const allUsers = await prisma.users.findMany();
+        // console.log("ALL USERS IN DB:", JSON.stringify(allUsers, null, 2)); //To FIND ALL THE USERS IN THE DB FOR DEBUGGING PURPOSES
+
         const user = await prisma.users.findFirst({
             where:
-                {email: {
-                    equals: req.body.email.trim(),
+                { email: {
+                    equals: req.body.email,
                     mode: 'insensitive',
-                }
+                } 
             }
         });
 
         if (!user){
+            console.log("User not found with email:", email);
             return res.status(401).json({ message: 'User not found'});
         }
 
@@ -66,7 +73,8 @@ const login = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '7d'}
         );
-        res.status(200).json({"user signed in": true, token });
+        //console.log("User: ",user); // Log the user object being returned from the database --- DEBUGGING PURPOSES ONLY, REMOVE IN PRODUCTION ---
+        res.status(200).json({"user signed in": true, token,  });
     } catch (error){
         console.error(error);
         res.status(500).json({error: 'Server error'});
