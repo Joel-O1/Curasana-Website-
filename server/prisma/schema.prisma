@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model aggregated_trend {
+  area_id           Int       @id @default(autoincrement())
+  start_date        DateTime? @db.Date
+  end_date          DateTime? @db.Date
+  symptom_category  String?   @db.VarChar
+  count             Int?
+  baseline_count    Int?
+  percentage_chance Int?
+  trend_status      String?   @db.VarChar
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model appointment {
+  id                 Int              @id @default(autoincrement())
+  patient_id         Int
+  appt_type          String?          @db.VarChar
+  provider_type      String?          @db.VarChar
+  date               DateTime         @db.Date
+  time               DateTime?        @db.Timetz(6)
+  reason             String?          @db.VarChar
+  notes              String?          @db.VarChar
+  follow_up_required Boolean?         @default(false)
+  created_at         DateTime?        @default(now()) @db.Timestamp(6)
+  patient_profiles   patient_profiles @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_appointment_patient_id")
+  health_event       health_event[]
+}
+
+model category {
+  id                       Int                        @id @default(autoincrement())
+  category_name            String                     @unique @db.VarChar
+  category_type            String?                    @db.VarChar
+  definition               String?                    @db.VarChar
+  icon                     String?                    @db.VarChar
+  color                    String?                    @db.VarChar
+  description              String?                    @db.VarChar
+  category_field_templates category_field_templates[]
+  health_event             health_event[]
+  patient_categories       patient_categories[]
+}
+
+model category_field_templates {
+  id                  Int                   @id @default(autoincrement())
+  category_id         Int
+  field_name          String                @db.VarChar
+  field_type          String                @db.VarChar
+  unit                String?               @db.VarChar
+  is_required         Boolean?              @default(false)
+  display_order       Int?
+  category            category              @relation(fields: [category_id], references: [id], onUpdate: NoAction, map: "fk_category_field_templates_category_id")
+  health_event_fields health_event_fields[]
+
+  @@unique([category_id, field_name], map: "uq_category_field")
+}
+
+model doctor_profiles {
+  id             Int       @id @default(autoincrement())
+  user_id        Int       @unique
+  specialty      String?   @db.VarChar
+  license_number String?   @db.VarChar
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+  users          users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_doctor_profiles_user_id")
+}
+
+model health_event {
+  id                    Int                   @id @default(autoincrement())
+  patient_id            Int
+  category_id           Int
+  event_title           String?               @db.VarChar
+  event_type            String?               @db.VarChar
+  date                  DateTime              @default(dbgenerated("CURRENT_DATE")) @db.Date
+  time                  DateTime              @default(dbgenerated("CURRENT_TIME")) @db.Timetz(6)
+  severity              Int?
+  notes                 String?               @db.VarChar
+  tags                  String?               @db.VarChar
+  related_medication_id Int?
+  related_appt_id       Int?
+  created_at            DateTime?             @default(now()) @db.Timestamp(6)
+  updated_at            DateTime?             @default(now()) @db.Timestamp(6)
+  category              category              @relation(fields: [category_id], references: [id], onUpdate: NoAction, map: "fk_health_event_category_id")
+  patient_profiles      patient_profiles      @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_health_event_patient_id")
+  appointment           appointment?          @relation(fields: [related_appt_id], references: [id], onUpdate: NoAction, map: "fk_health_event_related_appt_id")
+  medication            medication?           @relation(fields: [related_medication_id], references: [id], onUpdate: NoAction, map: "fk_health_event_related_medication_id")
+  health_event_fields   health_event_fields[]
+}
+
+model health_event_fields {
+  id                       Int                       @id @default(autoincrement())
+  event_id                 Int
+  template_field_id        Int?
+  field_name               String?                   @db.VarChar
+  field_value              String                    @db.VarChar
+  is_custom                Boolean?                  @default(false)
+  created_at               DateTime?                 @default(now()) @db.Timestamp(6)
+  health_event             health_event              @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_health_event_fields_event_id")
+  category_field_templates category_field_templates? @relation(fields: [template_field_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_health_event_fields_template")
+}
+
+model medication {
+  id                 Int            @id @default(autoincrement())
+  medication_name    String
+  description        String?
+  default_dose       String?
+  default_unit       String?
+  created_by_user_id Int?
+  created_at         DateTime?      @default(now()) @db.Timestamp(6)
+  health_event       health_event[]
+  users              users?         @relation(fields: [created_by_user_id], references: [id], onUpdate: NoAction)
+  prescription       prescription[]
+}
+
+model medication_log {
+  id               Int          @id @default(autoincrement())
+  prescription_id  Int
+  patient_id       Int
+  scheduled_time   DateTime?    @db.Timestamp(6)
+  actual_time      DateTime?    @db.Timestamp(6)
+  status           String
+  reason_missed    String?
+  side_effects     String?
+  created_at       DateTime?    @default(now()) @db.Timestamp(6)
+  patient_profiles users        @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_medication_log_patient_id")
+  prescription     prescription @relation(fields: [prescription_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([patient_id], map: "idx_medlog_patient")
+  @@index([prescription_id], map: "idx_medlog_prescription")
+}
+
+model patient_categories {
+  id               Int              @id @default(autoincrement())
+  patient_id       Int
+  category_id      Int
+  is_custom        Boolean?         @default(false)
+  created_at       DateTime?        @default(now()) @db.Timestamp(6)
+  category         category         @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_patient_categories_category_id")
+  patient_profiles patient_profiles @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_patient_categories_patient_id")
+}
+
+model patient_profiles {
+  id                 Int                  @id @default(autoincrement())
+  user_id            Int                  @unique
+  first_name         String?              @db.VarChar
+  last_name          String?              @db.VarChar
+  date_of_birth      DateTime?            @db.Date
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  appointment        appointment[]
+  health_event       health_event[]
+  patient_categories patient_categories[]
+  users              users                @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_patient_profiles_user_id")
+}
+
+model users {
+  id                   Int                    @id @default(autoincrement())
+  username             String                 @unique @db.VarChar
+  email                String                 @unique @db.VarChar
+  password_hash        String                 @db.VarChar
+  role                 String                 @db.VarChar
+  created_at           DateTime?              @default(now()) @db.Timestamp(6)
+  doctor_profiles      doctor_profiles?
+  medication           medication[]
+  medication_log       medication_log[]
+  patient_profiles     patient_profiles?
+  prescription         prescription[]
+  prescription_history prescription_history[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model prescription {
+  id                   Int                    @id @default(autoincrement())
+  patient_id           Int
+  medication_id        Int
+  prescribed_by        String?
+  dose                 String?
+  unit                 String?
+  frequency            String?
+  daily_intake_periods String?
+  start_date           DateTime?              @db.Date
+  end_date             DateTime?              @db.Date
+  refills_remaining    Int?                   @default(0)
+  status               String                 @default("active")
+  notes                String?
+  created_at           DateTime?              @default(now()) @db.Timestamp(6)
+  medication_log       medication_log[]
+  medication           medication             @relation(fields: [medication_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                users                  @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  prescription_history prescription_history[]
+
+  @@index([patient_id], map: "idx_prescription_patient")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model prescription_history {
+  id                       Int          @id @default(autoincrement())
+  prescription_id          Int
+  changed_by_user_id       Int?
+  changed_at               DateTime?    @default(now()) @db.Timestamp(6)
+  old_dose                 String?
+  old_unit                 String?
+  old_frequency            String?
+  old_daily_intake_periods String?
+  old_start_date           DateTime?    @db.Date
+  old_end_date             DateTime?    @db.Date
+  old_refills_remaining    Int?
+  old_status               String?
+  old_notes                String?
+  users                    users?       @relation(fields: [changed_by_user_id], references: [id], onUpdate: NoAction)
+  prescription             prescription @relation(fields: [prescription_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+enum status {
+  taken
+  missed
+  delayed
+  skipped
+}
