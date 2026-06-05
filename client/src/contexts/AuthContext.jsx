@@ -1,63 +1,93 @@
-import React, { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 
-const AuthContext = createContext(null)
-
-async function api(path, options = {}) {
-  const res = await fetch(path, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-    ...options,
-  })
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data?.error || "Request failed")
-  return data
-}
+const Ctx = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser]       = useState(null);
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const refresh = async () => {
-    try {
-      const me = await api("/api/auth/me")
-      setUser(me.user || null)
-    } catch {
-      setUser(null)
-    } finally {
-      setLoading(false)
+  async function fetchProfile(email) {
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, username, email, role, created_at")
+      .eq("email", email)
+      .single();
+    if (error) { console.warn("profile fetch:", error.message); return null; }
+    return data;
+  }
+
+  async function buildUser(au) {
+    if (!au) return null;
+    const p = await fetchProfile(au.email);
+    return {
+      authId: au.id,
+      email:  au.email,
+      name:   p?.username || au.user_metadata?.username || au.email,
+      role:   p?.role || "patient",
+      dbId:   p?.id || null,
+      onboarded: !!p,
+    };
+  }
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+      setSession(s);
+      setUser(s?.user ? await buildUser(s.user) : null);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } =
+      supabase.auth.onAuthStateChange(async (_ev, s) => {
+        setSession(s);
+        setUser(s?.user ? await buildUser(s.user) : null);
+        setLoading(false);
+      });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function signIn(email, password) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && data?.user) setUser(await buildUser(data.user));
+    return { data, error };
+  }
+
+  async function signUp(email, password, username) {
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { username } },
+    });
+    if (error) return { data, error };
+
+    if (data?.user) {
+      await supabase.from("users").insert({
+        username, email,
+        password_hash: "supabase_auth",
+        role: "patient",
+      }).then(({ error: e }) => {
+        if (e) console.warn("public.users insert:", e.message);
+      });
+      setUser(await buildUser(data.user));
     }
+    return { data, error };
   }
 
-  useEffect(() => { refresh() }, [])
-
-  const login = async (email, password) => {
-    const out = await api("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) })
-    setUser(out.user)
-    return out
-  }
-
-  const signup = async (payload) => {
-    const out = await api("/api/auth/signup", { method: "POST", body: JSON.stringify(payload) })
-    setUser(out.user)
-    return out
-  }
-
-  const logout = async () => {
-    await api("/api/auth/logout", { method: "POST" })
-    setUser(null)
-  }
-
-  const googleStart = () => {
-    window.location.href = "/api/auth/google/start"
+  async function signOut() {
+    await supabase.auth.signOut();
+    setUser(null); setSession(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, refresh, googleStart }}>
+    <Ctx.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
       {children}
-    </AuthContext.Provider>
-  )
+    </Ctx.Provider>
+  );
 }
 
 export function useAuth() {
-  return useContext(AuthContext)
+  const c = useContext(Ctx);
+  if (!c) throw new Error("useAuth must be inside <AuthProvider>");
+  return c;
 }

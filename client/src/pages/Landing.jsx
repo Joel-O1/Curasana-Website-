@@ -9,14 +9,14 @@ export default function Landing() {
 
     const handleStart = () => {
         if (user) {
-            navigate(user.role === "doctor" ? "/doctor" : "/dashboard");
+            navigate("/dashboard");
         } else {
             navigate("/signup");
         }
     };
 
     const features = [
-        { Icon: Activity, color: "var(--coral)", bg: "var(--coral-light)", title: "Track Symptoms", desc: "Pain scale, severity, notes — every entry timestamped." },
+        { Icon: Activity, color: "var(--coral)", bg: "var(--coral-light)", title: "Track Symptoms", desc: "Pain scale, severity, notes â€” every entry timestamped." },
         { Icon: Pill, color: "var(--teal)", bg: "var(--teal-light)", title: "Manage Medications", desc: "Daily checklist, adherence stats, prescription log." },
         { Icon: AlertCircle, color: "var(--amber)", bg: "var(--amber-light)", title: "Allergy Registry", desc: "Emergency-ready record of every allergen and reaction." },
         { Icon: Brain, color: "var(--purple)", bg: "var(--purple-light)", title: "ML Insights", desc: "Statistical correlations between symptoms and triggers." },
@@ -63,7 +63,7 @@ export default function Landing() {
                             <span style={{ color: "var(--teal)" }}>understood.</span>
                         </h1>
                         <p className="text-lg mt-6 max-w-xl" style={{ color: "var(--text2)" }}>
-                            Track symptoms, medications, allergies and appointments — then watch Curasana surface patterns
+                            Track symptoms, medications, allergies and appointments â€” then watch Curasana surface patterns
                             you'd never spot yourself. Share clinical-grade reports with your doctor in one click.
                         </p>
                         <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -82,9 +82,9 @@ export default function Landing() {
                         </div>
                         <div className="mt-8 flex items-center gap-6 text-xs" style={{ color: "var(--text3)" }}>
                             <span className="flex items-center gap-1.5"><ShieldCheck size={12} /> End-to-end private</span>
-                            <span>•</span>
+                            <span>â€¢</span>
                             <span>Built for patients</span>
-                            <span>•</span>
+                            <span>â€¢</span>
                             <span>Free during beta</span>
                         </div>
                     </div>
@@ -103,9 +103,9 @@ export default function Landing() {
                                 <div className="cu-progress mb-5"><div className="cu-progress-fill" style={{ width: "87%" }} /></div>
                                 <div className="space-y-2.5">
                                     {[
-                                        { Icon: Activity, c: "var(--coral)", bg: "var(--coral-light)", t: "Migraine", s: "Mild · 2/10", time: "9:14 AM" },
+                                        { Icon: Activity, c: "var(--coral)", bg: "var(--coral-light)", t: "Migraine", s: "Mild Â· 2/10", time: "9:14 AM" },
                                         { Icon: Pill, c: "var(--teal)", bg: "var(--teal-light)", t: "Vitamin D3 taken", s: "2000 IU", time: "8:00 AM" },
-                                        { Icon: Brain, c: "var(--purple)", bg: "var(--purple-light)", t: "Pattern detected", s: "Headache ↔ Pollen", time: "Today" },
+                                        { Icon: Brain, c: "var(--purple)", bg: "var(--purple-light)", t: "Pattern detected", s: "Headache â†” Pollen", time: "Today" },
                                     ].map((it, i) => (
                                         <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl" style={{ background: "var(--gray-soft)" }}>
                                             <div className="cu-stat-icon" style={{ background: it.bg, width: 34, height: 34 }}>
@@ -175,7 +175,7 @@ export default function Landing() {
             </section>
 
             <footer className="px-6 md:px-12 py-8 max-w-7xl mx-auto flex items-center justify-between text-xs" style={{ color: "var(--text3)", borderTop: "1px solid var(--border-soft)" }}>
-                <div>© {new Date().getFullYear()} Curasana Health</div>
+                <div>Â© {new Date().getFullYear()} Curasana Health</div>
                 <div className="flex gap-4">
                     <span>Privacy</span>
                     <span>Terms</span>

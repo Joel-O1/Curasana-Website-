@@ -24,6 +24,7 @@
     "@radix-ui/react-toast": "^1.2.15",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@recharts/devtools": "^0.0.13",
+    "@supabase/supabase-js": "^2.107.0",
     "axios": "^1.17.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -31,8 +32,9 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-hook-form": "^7.77.0",
-    "react-router-dom": "^7.16.0",
+    "react-router-dom": "^7.17.0",
     "recharts": "^3.8.1",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
   },
