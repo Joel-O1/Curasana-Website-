@@ -186,7 +186,7 @@ function getDateTicks(startDate, endDate, activeRange) {
 
   while (currentDate.getTime() <= startDate) {
     currentDate.setTime(currentDate.getTime() + step);
-    }
+  }
 
   while (currentDate.getTime() <= endDate) {
     ticks.push(currentDate.getTime());
@@ -274,6 +274,7 @@ function getAxisRows(chartRows) {
   });
 
   const minYValue = 1;
+
   const maxYValue =
     availableSlots.length > 0
       ? Math.max(...availableSlots.map((slot) => slot.y))
@@ -433,7 +434,7 @@ function CustomTooltip({ active, payload }) {
   return null;
 }
 
-function SymptomBreakdown({ data, activeRange }) {
+function SymptomBreakdown({ data }) {
   const [showAllSymptoms, setShowAllSymptoms] = useState(false);
 
   const maxCount =
@@ -919,126 +920,128 @@ function HealthTimeline() {
         </p>
       </div>
 
-      <div className="relative mb-6 w-80">
-        <button
-          onClick={toggleDropdown}
-          className="flex w-full items-center justify-between rounded-xl bg-gray-50 px-4 py-3 text-left shadow-sm"
-        >
-          <span className="font-semibold">Event Categories</span>
-
-          <span>{dropdownOpen ? "▲" : "▼"}</span>
-        </button>
-
-        {dropdownOpen && (
-          <div className="absolute z-10 mt-2 w-full rounded-xl bg-white p-4 shadow-lg">
-            <input
-              type="text"
-              value={searchText}
-              onChange={(event) => setSearchText(event.target.value)}
-              placeholder="Search events..."
-              className="mb-3 w-full rounded-lg border px-3 py-2 outline-none"
-            />
-
-            <div className="mb-3 flex gap-2">
-              <button
-                onClick={selectAllEvents}
-                className="rounded-lg bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
-              >
-                Select All
-              </button>
-
-              <button
-                onClick={clearAllEvents}
-                className="rounded-lg bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
-              >
-                Clear All
-              </button>
-            </div>
-
-            <div className="max-h-72 overflow-y-auto">
-              {categoryGroups.map((group) => {
-                const visibleOptions = getVisibleOptions(group.options);
-
-                if (visibleOptions.length === 0) {
-                  return null;
-                }
-
-                const allGroupOptionsSelected = group.options.every((option) =>
-                  selectedTypes.includes(option)
-                );
-
-                const someGroupOptionsSelected = group.options.some((option) =>
-                  selectedTypes.includes(option)
-                );
-
-                return (
-                  <div key={group.name} className="mb-3">
-                    <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 px-3 py-2 font-semibold hover:bg-gray-200">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={allGroupOptionsSelected}
-                          ref={(input) => {
-                            if (input) {
-                              input.indeterminate =
-                                someGroupOptionsSelected &&
-                                !allGroupOptionsSelected;
-                            }
-                          }}
-                          onChange={() => toggleCategory(group.options)}
-                        />
-
-                        <span>{group.name}</span>
-                      </label>
-
-                      <button
-                        onClick={() => toggleGroup(group.name)}
-                        className="rounded px-2"
-                      >
-                        {expandedGroups[group.name] ? "-" : "+"}
-                      </button>
-                    </div>
-
-                    {expandedGroups[group.name] && (
-                      <div className="mt-2 flex flex-col gap-2 pl-3">
-                        {visibleOptions.map((type) => (
-                          <label
-                            key={type}
-                            className="flex items-center gap-2"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedTypes.includes(type)}
-                              onChange={() => toggleHealthEvent(type)}
-                            />
-
-                            <span>{type}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="mb-4 flex gap-2">
-        {["D", "W", "M", "3M", "6M", "Y"].map((range) => (
+      <div className="mb-4 flex items-start gap-4">
+        <div className="relative w-80">
           <button
-            key={range}
-            onClick={() => setTimelineRange(range)}
-            className={
-              activeRange === range
-                ? "rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow"
-                : "rounded-lg bg-gray-50 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-gray-100"
-            }
+            onClick={toggleDropdown}
+            className="flex w-full items-center justify-between rounded-xl bg-gray-50 px-4 py-3 text-left shadow-sm"
           >
-            {range}
+            <span className="font-semibold">Event Categories</span>
+
+            <span>{dropdownOpen ? "▲" : "▼"}</span>
           </button>
-        ))}
+
+          {dropdownOpen && (
+            <div className="absolute z-10 mt-2 w-full rounded-xl bg-white p-4 shadow-lg">
+              <input
+                type="text"
+                value={searchText}
+                onChange={(event) => setSearchText(event.target.value)}
+                placeholder="Search events..."
+                className="mb-3 w-full rounded-lg border px-3 py-2 outline-none"
+              />
+
+              <div className="mb-3 flex gap-2">
+                <button
+                  onClick={selectAllEvents}
+                  className="rounded-lg bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
+                >
+                  Select All
+                </button>
+
+                <button
+                  onClick={clearAllEvents}
+                  className="rounded-lg bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
+                >
+                  Clear All
+                </button>
+              </div>
+
+              <div className="max-h-72 overflow-y-auto">
+                {categoryGroups.map((group) => {
+                  const visibleOptions = getVisibleOptions(group.options);
+
+                  if (visibleOptions.length === 0) {
+                    return null;
+                  }
+
+                  const allGroupOptionsSelected = group.options.every(
+                    (option) => selectedTypes.includes(option)
+                  );
+
+                  const someGroupOptionsSelected = group.options.some(
+                    (option) => selectedTypes.includes(option)
+                  );
+
+                  return (
+                    <div key={group.name} className="mb-3">
+                      <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 px-3 py-2 font-semibold hover:bg-gray-200">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={allGroupOptionsSelected}
+                            ref={(input) => {
+                              if (input) {
+                                input.indeterminate =
+                                  someGroupOptionsSelected &&
+                                  !allGroupOptionsSelected;
+                              }
+                            }}
+                            onChange={() => toggleCategory(group.options)}
+                          />
+
+                          <span>{group.name}</span>
+                        </label>
+
+                        <button
+                          onClick={() => toggleGroup(group.name)}
+                          className="rounded px-2"
+                        >
+                          {expandedGroups[group.name] ? "-" : "+"}
+                        </button>
+                      </div>
+
+                      {expandedGroups[group.name] && (
+                        <div className="mt-2 flex flex-col gap-2 pl-3">
+                          {visibleOptions.map((type) => (
+                            <label
+                              key={type}
+                              className="flex items-center gap-2"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedTypes.includes(type)}
+                                onChange={() => toggleHealthEvent(type)}
+                              />
+
+                              <span>{type}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 pt-1">
+          {["D", "W", "M", "3M", "6M", "Y"].map((range) => (
+            <button
+              key={range}
+              onClick={() => setTimelineRange(range)}
+              className={
+                activeRange === range
+                  ? "rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow"
+                  : "rounded-lg bg-gray-50 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-gray-100"
+              }
+            >
+              {range}
+            </button>
+          ))}
+        </div>
       </div>
 
       <p className="mb-3 text-sm text-gray-600">
@@ -1048,7 +1051,7 @@ function HealthTimeline() {
       <div className="flex gap-6">
         <div className="min-w-0 flex-1">
           <div
-            className="w-full cursor-grab touch-none overflow-x-auto overflow-y-hidden rounded-2xl bg-white active:cursor-grabbing select-none"
+            className="inline-block max-w-full cursor-grab touch-none overflow-x-auto overflow-y-hidden rounded-2xl bg-white active:cursor-grabbing select-none"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -1074,16 +1077,18 @@ function HealthTimeline() {
                 />
 
                 <XAxis
-                    type="number"
-                    dataKey="x"
-                    domain={chartDomain}
-                    ticks={getDateTicks(startDate, endDate, activeRange)}
-                    tickFormatter={(value) => formatXAxisTick(value, activeRange)}
-                    name="Date"
-                    tick={{ fontSize: 12 }}
-                    allowDataOverflow
-                    padding={{ left: 0, right: 0 }}
-                    />
+                  type="number"
+                  dataKey="x"
+                  domain={chartDomain}
+                  ticks={getDateTicks(startDate, endDate, activeRange)}
+                  tickFormatter={(value) =>
+                    formatXAxisTick(value, activeRange)
+                  }
+                  name="Date"
+                  tick={{ fontSize: 12 }}
+                  allowDataOverflow
+                  padding={{ left: 0, right: 0 }}
+                />
 
                 <YAxis
                   yAxisId="left"
@@ -1145,7 +1150,10 @@ function HealthTimeline() {
                   isAnimationActive={false}
                 >
                   {placeholderData.map((entry, index) => (
-                    <Cell key={`placeholder-cell-${index}`} fill="transparent" />
+                    <Cell
+                      key={`placeholder-cell-${index}`}
+                      fill="transparent"
+                    />
                   ))}
                 </Scatter>
 
@@ -1187,10 +1195,7 @@ function HealthTimeline() {
         </div>
 
         <div className="w-[430px] shrink-0">
-          <SymptomBreakdown
-            data={symptomBreakdownData}
-            activeRange={activeRange}
-          />
+          <SymptomBreakdown data={symptomBreakdownData} />
         </div>
       </div>
     </div>
