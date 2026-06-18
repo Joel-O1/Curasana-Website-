@@ -1,0 +1,20 @@
+{
+  "folders": [
+    {
+      "name": "ML Service",
+      "path": "ml-service"
+    },
+    {
+      "name": "Backend Server",
+      "path": "server"
+    },
+    {
+      "name": "Frontend Client",
+      "path": "client"
+    },
+    {
+      "name": "Full Root",
+      "path": "."
+    }
+  ] 
+}
