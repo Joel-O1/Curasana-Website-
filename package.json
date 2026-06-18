@@ -8,5 +8,9 @@
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "pg": "^8.21.0"
+  },
+  "scripts": {
+    "build": "cd client && npm install && npm run build"
   }
 }
+``
